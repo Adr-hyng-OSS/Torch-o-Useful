@@ -1,5 +1,5 @@
 import { Compare, Logger, isTorchIncluded, torchFireEffects, prioritizeMainHand } from "./packages";
-import {EntityDamageCause, EntityEquipmentInventoryComponent, EquipmentSlot, MinecraftItemTypes, Player, TicksPerSecond, world} from "@minecraft/server";
+import {EntityDamageCause, EntityEquipmentInventoryComponent, EquipmentSlot, ItemStack, MinecraftItemTypes, Player, TicksPerSecond, world} from "@minecraft/server";
 
 const DEFAULT_EFFECTS: Map<string, number> = new Map([
   [MinecraftItemTypes.torch.id, 40],
@@ -18,15 +18,48 @@ world.afterEvents.entityHurt.subscribe((event) => {
   const mainHand = equipment.getEquipment(EquipmentSlot.mainhand)?.typeId;
   const offHand = equipment.getEquipment(EquipmentSlot.offhand)?.typeId;
   if(!([isTorchIncluded(mainHand), isTorchIncluded(offHand)].some(hand => hand === true))) return;
+  let handToUse = prioritizeMainHand ? mainHand : offHand;
   const updatedTorchFireEffects = Object.assign({}, DEFAULT_EFFECTS, torchFireEffects);
   Object.keys(updatedTorchFireEffects).forEach((key) => {
     if (typeof updatedTorchFireEffects[key] === "number") updatedTorchFireEffects[key] = Math.round(updatedTorchFireEffects[key] / TicksPerSecond);
   });
-  let handToUse = prioritizeMainHand ? mainHand : offHand;
   if (!isTorchIncluded(handToUse)) {
       handToUse = Compare.types.isEqual(handToUse, mainHand) ? offHand : mainHand;
   }
   if (isTorchIncluded(handToUse)) {
       hurtedEntity.setOnFire(updatedTorchFireEffects[handToUse] ?? 0, true);
+  }
+});
+
+world.afterEvents.itemUseOn.subscribe((event) => {
+  const _block = event.block;
+  const player: Player = event.source as Player;
+  if(!(player instanceof Player)) return;
+  const equipment = (player.getComponent(EntityEquipmentInventoryComponent.componentId) as EntityEquipmentInventoryComponent);
+  const mainHand = equipment.getEquipment(EquipmentSlot.mainhand)?.typeId;
+  const offHand = equipment.getEquipment(EquipmentSlot.offhand)?.typeId;
+  if(!([isTorchIncluded(mainHand), isTorchIncluded(offHand)].some(hand => hand === true))) return;
+  const permutations: Map<string, string | number | boolean | undefined> = JSON.parse(JSON.stringify(_block.permutation.getAllStates()));
+  Logger.warn(permutations["lit"], permutations["lit"] === undefined);
+  if(permutations["lit"] === undefined && permutations["extinguished"] === undefined) return;
+
+  // Make sure there's no torch placed, like it should only be interacted with.
+  // Not used on... (e.g. placing a torch on a block)
+  for (const [key, value] of Object.entries(permutations)) {
+    Logger.warn(`${key}: ${value}`);
+    if(key === "lit" && value === false) {
+      // Make sure to handle the placed torch or the torch you are holding.
+      const flag: boolean = value as boolean;
+      const perm = _block.permutation.withState("lit", !flag);
+      _block.setPermutation(perm);
+      break;
+    }
+    else if(key === "extinguished" && value === true) {
+      // Make sure to handle the placed torch or the torch you are holding.
+      const flag: boolean = value as boolean;
+      const perm = _block.permutation.withState("extinguished", !flag);
+      _block.setPermutation(perm);
+      break;
+    }
   }
 });

@@ -31,7 +31,7 @@ export default {
   /**
    * Prioritize mainhand over offhand. If false, it will prioritize offhand over mainhand.
    */
-  prioritizeMainHand: false,
+  prioritizeMainHand: true,
   /**
    * Map of torch effects to apply. 
    * (i.g Torch: 40 ticks, Soul Torch: 60 ticks)
