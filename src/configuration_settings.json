@@ -1,0 +1,29 @@
+{
+  "igniteTNT": {
+    "description": "Toggle for igniting the tnt, similar to Fire Aspect behavior.",
+    "default": false
+  },
+  "includeCustomTorch": {
+    "description": "This makes custom torches that doesn't endswith: \n.*_torch or .*torch \nbe included too.\nList of included Custom Torch, since it only accepts any torches that endswith: *.torch or .*_torch \nExample: \n - minecraft:torch\n - minecraft:soul_torch\n - minecraft:redstone_torch\n - any_custom:torch\n - any:_torch",
+    "default": []
+  },
+  "excludeCustomTorch": {
+    "description": "List of Custom or Vanilla torches to exclude.\nExample: \n - minecraft:soul_torch\n - .*_torch\n - any_custom:torch",
+    "default": []
+  },
+
+  "prioritizeMainHand": {
+    "description": "Prioritize mainhand over offhand. If false, it will prioritize offhand over mainhand.",
+    "default": false
+  },
+
+  "torchFireEffects": {
+    "description": "Map of torch effects to apply. \n(i.g Torch: 40 ticks, Soul Torch: 60 ticks)",
+    "default": {
+      "minecraft:torch": 40,
+      "minecraft:soul_torch": 100,
+      "minecraft:redstone_torch": 40,
+      "custom_namespace:custom_torch": 40
+    }
+  }
+}
