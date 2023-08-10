@@ -29,14 +29,14 @@ export default {
    */
   excludeCustomTorch: [],
   /**
-   * Map of torch effects to apply. 
-   * (i.g Torch: 40 ticks, Soul Torch: 60 ticks)
-   */
-  torchFireEffects: {'minecraft:torch': 40, 'minecraft:soul_torch': 100, 'minecraft:redstone_torch': 40, 'custom_namespace:custom_torch': 40},
-  /**
    * Prioritize mainhand over offhand. If false, it will prioritize offhand over mainhand.
    */
   prioritizeMainHand: false,
+  /**
+   * Map of torch effects to apply. 
+   * (i.g Torch: 40 ticks, Soul Torch: 60 ticks)
+   */
+  torchFireEffects: {'minecraft:torch': 40, 'minecraft:soul_torch': 60, 'minecraft:redstone_torch': 40, 'custom_namespace:custom_torch': 40},
 };
 
 // version (do not change)

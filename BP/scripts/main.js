@@ -1,4 +1,4 @@
-import { Compare, Logger, isTorchIncluded, torchFireEffects, prioritizeMainHand } from "./packages";
+import { Compare, isTorchIncluded, torchFireEffects, prioritizeMainHand } from "./packages";
 import { EntityDamageCause, EntityEquipmentInventoryComponent, EquipmentSlot, MinecraftItemTypes, Player, TicksPerSecond, world } from "@minecraft/server";
 const DEFAULT_EFFECTS = new Map([
     [MinecraftItemTypes.torch.id, 40],
@@ -25,24 +25,11 @@ world.afterEvents.entityHurt.subscribe((event) => {
         if (typeof updatedTorchFireEffects[key] === "number")
             updatedTorchFireEffects[key] = Math.round(updatedTorchFireEffects[key] / TicksPerSecond);
     });
-    if (prioritizeMainHand) {
-        if (isTorchIncluded(mainHand)) {
-            hurtedEntity.setOnFire(updatedTorchFireEffects[mainHand] ?? 0, true);
-            Logger.warn("Prioritize Main Hand");
-        }
-        else if (isTorchIncluded(offHand)) {
-            hurtedEntity.setOnFire(updatedTorchFireEffects[offHand] ?? 0, true);
-            Logger.warn("Prioritize Off Hand");
-        }
+    let handToUse = prioritizeMainHand ? mainHand : offHand;
+    if (!isTorchIncluded(handToUse)) {
+        handToUse = Compare.types.isEqual(handToUse, mainHand) ? offHand : mainHand;
     }
-    else {
-        if (isTorchIncluded(offHand)) {
-            hurtedEntity.setOnFire(updatedTorchFireEffects[offHand] ?? 0, true);
-            Logger.warn("Prioritize Off Hand");
-        }
-        else if (isTorchIncluded(mainHand)) {
-            hurtedEntity.setOnFire(updatedTorchFireEffects[mainHand] ?? 0, true);
-            Logger.warn("Prioritize Main Hand");
-        }
+    if (isTorchIncluded(handToUse)) {
+        hurtedEntity.setOnFire(updatedTorchFireEffects[handToUse] ?? 0, true);
     }
 });
