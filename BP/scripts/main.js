@@ -49,7 +49,6 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
     logMap.set(player.id, Date.now());
     if ((oldLog + 150) >= Date.now())
         return;
-    Logger.warn("TEST EXECUTE");
     const permutations = JSON.parse(JSON.stringify(_block.permutation.getAllStates()));
     if (permutations["lit"] === undefined && permutations["extinguished"] === undefined)
         return;
@@ -68,30 +67,33 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
     if (!torchHand)
         return;
     let justExecuted = false;
-    const onBlockPlaced = world.afterEvents.blockPlace.subscribe((event2) => {
+    const onBlockPlaced = world.afterEvents.blockPlace.subscribe((onPlaced) => {
         system.run(() => world.afterEvents.blockPlace.unsubscribe(onBlockPlaced));
         if (justExecuted)
             return;
-        Logger.warn("PLACEING");
-        const blockPlaced = event2.block;
-        const blockPlacePlayer = event2.player;
+        const blockPlaced = onPlaced.block;
+        const blockPlacePlayer = onPlaced.player;
         const blockPlacedItemStack = blockPlaced.getItemStack();
+        if (!blockPlacedItemStack)
+            return;
+        if (!blockPlacePlayer)
+            return;
         if (!Compare.types.isEqual(blockPlacedItemStack?.type, mainHand?.type))
             return;
         if (!Compare.types.isEqual(blockPlacePlayer?.id, player?.id))
             return;
         blockPlaced.setType(MinecraftBlockTypes.air);
         justExecuted = true;
-        if (!isTorchIncluded(blockPlacedItemStack.typeId))
-            inventory.addItem(blockPlacedItemStack.type, 1);
+        Logger.warn(`Block placed: ${blockPlacedItemStack.typeId}`);
+        inventory.addItem(blockPlacedItemStack.type, 1);
         if (permutations["lit"] === undefined && permutations["extinguished"] === undefined)
+            return;
+        if (permutations["lit"] === true || permutations["extinguished"] === false)
             return;
         if (!consumeTorchOnLit) {
             if (isTorchIncluded(blockPlacedItemStack.typeId))
-                inventory.addItem(blockPlacedItemStack.type, 1);
+                inventory.addItem(torchHand.item.type, 1);
         }
-        if (permutations["lit"] === true || permutations["extinguished"] === false)
-            return;
         for (const [key, value] of Object.entries(permutations)) {
             if (key === "lit" && value === false) {
                 const flag = value;
@@ -110,6 +112,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
         return;
     if (permutations["lit"] === true || permutations["extinguished"] === false)
         return;
+    Logger.warn(torchHand.item.amount);
     if (consumeTorchOnLit)
         inventory.clearItem(torchHand.item.typeId, 1);
     Logger.warn("Not holding any placeable item");

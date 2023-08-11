@@ -19,7 +19,7 @@
 
   "consumeTorchOnLit": {
     "description": "Toggle for consuming the torch when lighting a campfire, candle or tnt.",
-    "default": false
+    "default": true
   },
 
   "torchFireEffects": {
