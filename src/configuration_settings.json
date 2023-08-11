@@ -17,6 +17,11 @@
     "default": true
   },
 
+  "consumeTorchOnLit": {
+    "description": "Toggle for consuming the torch when lighting a campfire, candle or tnt.",
+    "default": false
+  },
+
   "torchFireEffects": {
     "description": "Map of torch effects to apply. \n(i.g Torch: 40 ticks, Soul Torch: 60 ticks)",
     "default": {

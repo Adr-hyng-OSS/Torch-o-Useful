@@ -37,6 +37,10 @@ export default {
    * (i.g Torch: 40 ticks, Soul Torch: 60 ticks)
    */
   torchFireEffects: {'minecraft:torch': 40, 'minecraft:soul_torch': 60, 'minecraft:redstone_torch': 40, 'custom_namespace:custom_torch': 40},
+  /**
+   * Toggle for consuming the torch when lighting a campfire, candle or tnt.
+   */
+  consumeTorchOnLit: false,
 };
 
 // version (do not change)

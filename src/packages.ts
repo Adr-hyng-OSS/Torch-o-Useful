@@ -1,8 +1,10 @@
 import config from "./config";
 export * from "./config";
-export * from "./logger";
 export * from "./functions/compare";
 export * from "./functions/utils";
+
+export * from "./classes/logger";
+export * from "./classes/inventory";
 
 const {
     debug,
@@ -10,8 +12,9 @@ const {
     excludeCustomTorch,
     includeCustomTorch,
     torchFireEffects,
-    prioritizeMainHand
+    prioritizeMainHand,
+    consumeTorchOnLit
 } = config;
 
 
-export {debug, igniteTNT, excludeCustomTorch, includeCustomTorch, torchFireEffects, prioritizeMainHand};
+export {debug, igniteTNT, excludeCustomTorch, includeCustomTorch, torchFireEffects, prioritizeMainHand, consumeTorchOnLit};

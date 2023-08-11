@@ -1,4 +1,5 @@
-import {includeCustomTorch, excludeCustomTorch} from "../packages";
+import { Block, MinecraftBlockTypes, Vector3 } from "@minecraft/server";
+import {includeCustomTorch, excludeCustomTorch, Compare} from "../packages";
 
 function isTorchIncluded(blockID: string): boolean {
   const currentPatterns: string[] = [
