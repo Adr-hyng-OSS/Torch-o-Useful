@@ -1,4 +1,4 @@
-import { Container, ItemStack, ItemType, Player } from "@minecraft/server";
+import { Container, Entity, EntityEquipmentInventoryComponent, EquipmentSlot, ItemStack, ItemType, Player } from "@minecraft/server";
 import { Compare, Logger } from "../packages";
 
 interface IContainer {
@@ -47,6 +47,9 @@ class CContainer implements IContainer {
 
     clearItem(itemId: string, decrement: number): boolean {
         const clearSlots = [];
+        Logger.warn(itemId);
+        const equipment = (this._holder.getComponent(EntityEquipmentInventoryComponent.componentId) as EntityEquipmentInventoryComponent);
+        const offhand = equipment.getEquipment(EquipmentSlot.offhand);
         for (let i = 0; i < this.inventory.size; i++) {
             let item: ItemStack = this.inventory.getItem(i);
             if (item?.typeId !== itemId) continue;
@@ -61,7 +64,19 @@ class CContainer implements IContainer {
             }; item.amount -= decrement;
             this.inventory.setItem(i, item);
             return true;
-        }; return false;
+        }; 
+        if(offhand?.typeId === itemId) {
+            if(offhand?.amount - decrement === 0) {
+                equipment.setEquipment(EquipmentSlot.offhand, undefined);
+                return true;
+            }
+            if(offhand?.amount - decrement > 0) {
+                offhand.amount -= decrement;
+                equipment.setEquipment(EquipmentSlot.offhand, offhand);
+                return true;
+            }
+        }
+        return false;
     };
 
     public addItem(itemTypeToAdd: ItemType, amount: number): void {
