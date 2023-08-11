@@ -1,4 +1,4 @@
-import { Compare, Logger, isTorchIncluded, torchFireEffects, prioritizeMainHand, consumeTorchOnLit, CContainer } from "./packages";
+import { Compare, isTorchIncluded, torchFireEffects, prioritizeMainHand, consumeTorchOnLit, CContainer } from "./packages";
 import { EntityDamageCause, EntityEquipmentInventoryComponent, EntityInventoryComponent, EquipmentSlot, MinecraftBlockTypes, MinecraftItemTypes, Player, TicksPerSecond, system, world } from "@minecraft/server";
 const logMap = new Map();
 const onBlockPlacedLogMap = new Map();
@@ -89,7 +89,6 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
             return;
         if (permutations["lit"] === true || permutations["extinguished"] === false)
             return;
-        Logger.warn("Holding placeable item");
         for (const [key, value] of Object.entries(permutations)) {
             if (key === "lit" && value === false) {
                 const flag = value;
@@ -112,7 +111,6 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
         return;
     if (consumeTorchOnLit)
         inventory.clearItem(torchHand.item.typeId, 1);
-    world.sendMessage("Not holding any placeable item " + justExecuted);
     for (const [key, value] of Object.entries(permutations)) {
         if (key === "lit" && value === false) {
             const flag = value;

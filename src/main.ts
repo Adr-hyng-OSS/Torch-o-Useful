@@ -127,9 +127,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 		// If the block interacted is already lit or not extinguished or has fire, then return.
 		if(permutations["lit"] === true || permutations["extinguished"] === false) return;
 		
-		Logger.warn("Holding placeable item");
 		// Else if the block interacted is not lit or extinguished, then set it to lit.
-
 		for (const [key, value] of Object.entries(permutations)) {
 			if(key === "lit" && value === false) {
 				const flag: boolean = value as boolean;
@@ -158,7 +156,6 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 	//* a shovel, and you are interacting it too fast, wait for the timer.
 	if(justExecuted) return;
 	if(consumeTorchOnLit) inventory.clearItem(torchHand.item.typeId, 1);	
-	world.sendMessage("Not holding any placeable item " + justExecuted);
 	for (const [key, value] of Object.entries(permutations)) {
 		if(key === "lit" && value === false) {
 			const flag: boolean = value as boolean;
