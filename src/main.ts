@@ -90,6 +90,8 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 	//* such as ladders, torches, blocks, etc.
 	//* So, whenever that happens, then set that to air.
 	//* and handle, the consume toggle configuration.
+
+	//! It doesn't clear the torch, when it is 0, and the consume toggle is on.
 	const onBlockPlaced = world.afterEvents.blockPlace.subscribe((onPlaced) => {
 		system.run(() => world.afterEvents.blockPlace.unsubscribe(onBlockPlaced));
 
@@ -115,8 +117,6 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 		blockPlaced.setType(MinecraftBlockTypes.air);
 		justExecuted = true;
 
-		Logger.warn(`Block placed: ${blockPlacedItemStack.typeId}`);
-
 		// If the blockPlaced is not a validTorch, then add it automatically to the inventory. Since it is not torch.
 		// We only want to find the torch, since it's part of the config.
 		inventory.addItem(blockPlacedItemStack.type, 1);	
@@ -132,7 +132,8 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 		if(!consumeTorchOnLit) {
 			if(isTorchIncluded(blockPlacedItemStack.typeId)) inventory.addItem(torchHand.item.type, 1);		
 		}
-
+		
+		Logger.warn("Holding placeable item");
 		// Else if the block interacted is not lit or extinguished, then set it to lit.
 
 		for (const [key, value] of Object.entries(permutations)) {
@@ -161,9 +162,9 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 	//* a placeable item like ladder, torch, block, etc.
 	//* Also, It will automatically extinguish the campfire, if you are holding
 	//* a shovel, and you are interacting it too fast, wait for the timer.
-	Logger.warn(torchHand.item.amount);
+	if(justExecuted) return;
 	if(consumeTorchOnLit) inventory.clearItem(torchHand.item.typeId, 1);	
-	Logger.warn("Not holding any placeable item");
+	world.sendMessage("Not holding any placeable item " + justExecuted);
 	for (const [key, value] of Object.entries(permutations)) {
 		if(key === "lit" && value === false) {
 			const flag: boolean = value as boolean;

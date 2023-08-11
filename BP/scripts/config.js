@@ -40,7 +40,7 @@ export default {
   /**
    * Toggle for consuming the torch when lighting a campfire, candle or tnt.
    */
-  consumeTorchOnLit: true,
+  consumeTorchOnLit: false,
 };
 
 // version (do not change)

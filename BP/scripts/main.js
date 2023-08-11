@@ -84,7 +84,6 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
             return;
         blockPlaced.setType(MinecraftBlockTypes.air);
         justExecuted = true;
-        Logger.warn(`Block placed: ${blockPlacedItemStack.typeId}`);
         inventory.addItem(blockPlacedItemStack.type, 1);
         if (permutations["lit"] === undefined && permutations["extinguished"] === undefined)
             return;
@@ -94,6 +93,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
             if (isTorchIncluded(blockPlacedItemStack.typeId))
                 inventory.addItem(torchHand.item.type, 1);
         }
+        Logger.warn("Holding placeable item");
         for (const [key, value] of Object.entries(permutations)) {
             if (key === "lit" && value === false) {
                 const flag = value;
@@ -112,10 +112,11 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
         return;
     if (permutations["lit"] === true || permutations["extinguished"] === false)
         return;
-    Logger.warn(torchHand.item.amount);
+    if (justExecuted)
+        return;
     if (consumeTorchOnLit)
         inventory.clearItem(torchHand.item.typeId, 1);
-    Logger.warn("Not holding any placeable item");
+    world.sendMessage("Not holding any placeable item " + justExecuted);
     for (const [key, value] of Object.entries(permutations)) {
         if (key === "lit" && value === false) {
             const flag = value;

@@ -1,5 +1,5 @@
 import { Container, ItemStack, ItemType, Player } from "@minecraft/server";
-import { Compare } from "../packages";
+import { Compare, Logger } from "../packages";
 
 interface IContainer {
     addItem(itemTypeToAdd: ItemType, amount: number): void;
