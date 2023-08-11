@@ -82,11 +82,22 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 	//* So, whenever that happens, then set that to air.
 	//* and handle, the consume toggle configuration.
 	const onBlockPlaced = world.afterEvents.blockPlace.subscribe((event2) => {
+		/**
+		 * ? Feature:
+		 * * 1. It should only cancel block placing when mainhand is a torch.
+		 * * 2. (NOT YER) It should also cancel the block placing, when offhand is a torch,
+		 * * like any block you hold in mainhand will be cancelling block placing.
+		 *  
+		 * ! Bugs:
+		 * * 1. (Offhand) It works to block cancel the validTorches, as it doesn't consume the torches, when consumeTorchOnLit is disabled.
+		 * * But, it doesn't block cancel the notValidTorches like blocks, etc.
+		 */
 		system.run(() => world.afterEvents.blockPlace.unsubscribe(onBlockPlaced));
 
 		const onBlockPlacedOldLog: number = onBlockPlacedLogMap.get(player.id);
 		onBlockPlacedLogMap.set(player.id, Date.now());
 		if ((onBlockPlacedOldLog + 150) >= Date.now()) return;
+
 		const blockPlaced = event2.block;
 		const blockPlacePlayer = event2.player;
 		const blockPlacedItemStack = blockPlaced.getItemStack();
@@ -94,6 +105,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 		if(!Compare.types.isEqual(blockPlacePlayer.id, player.id)) return;
 
 		blockPlaced.setType(MinecraftBlockTypes.air);
+		Logger.warn(!isTorchIncluded(blockPlacedItemStack.typeId), blockPlacedItemStack.typeId);
 		if(!isTorchIncluded(blockPlacedItemStack.typeId)) inventory.addItem(blockPlacedItemStack.type, 1);	
 		if(permutations["lit"] === undefined && permutations["extinguished"] === undefined) return;
 		if(!consumeTorchOnLit) {

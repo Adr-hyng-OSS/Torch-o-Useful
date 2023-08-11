@@ -81,6 +81,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
         if (!Compare.types.isEqual(blockPlacePlayer.id, player.id))
             return;
         blockPlaced.setType(MinecraftBlockTypes.air);
+        Logger.warn(!isTorchIncluded(blockPlacedItemStack.typeId), blockPlacedItemStack.typeId);
         if (!isTorchIncluded(blockPlacedItemStack.typeId))
             inventory.addItem(blockPlacedItemStack.type, 1);
         if (permutations["lit"] === undefined && permutations["extinguished"] === undefined)
