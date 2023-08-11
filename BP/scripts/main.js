@@ -89,10 +89,6 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
             return;
         if (permutations["lit"] === true || permutations["extinguished"] === false)
             return;
-        if (!consumeTorchOnLit) {
-            if (isTorchIncluded(blockPlacedItemStack.typeId))
-                inventory.addItem(torchHand.item.type, 1);
-        }
         Logger.warn("Holding placeable item");
         for (const [key, value] of Object.entries(permutations)) {
             if (key === "lit" && value === false) {

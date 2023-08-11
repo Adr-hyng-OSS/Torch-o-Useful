@@ -127,12 +127,6 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 		// If the block interacted is already lit or not extinguished or has fire, then return.
 		if(permutations["lit"] === true || permutations["extinguished"] === false) return;
 		
-		// if it is a campfire like or candle like, then check if the consumeTorchOnLit is enabled, then check
-		// if the block placed is a validTorch, then consume it.
-		if(!consumeTorchOnLit) {
-			if(isTorchIncluded(blockPlacedItemStack.typeId)) inventory.addItem(torchHand.item.type, 1);		
-		}
-		
 		Logger.warn("Holding placeable item");
 		// Else if the block interacted is not lit or extinguished, then set it to lit.
 
