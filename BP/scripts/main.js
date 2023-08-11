@@ -36,7 +36,6 @@ world.afterEvents.entityHurt.subscribe((event) => {
     if (!isTorchIncluded(handToUse)) {
         handToUse = Compare.types.isEqual(handToUse, mainHand) ? offHand : mainHand;
     }
-    Logger.warn(mainHand, offHand, handToUse);
     if (isTorchIncluded(handToUse)) {
         hurtedEntity.setOnFire(updatedTorchFireEffects[handToUse] ?? 0, true);
     }
@@ -138,4 +137,34 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
             break;
         }
     }
+});
+world.beforeEvents.chatSend.subscribe((event) => {
+    const prefix = "!";
+    let player = event.sender;
+    let message = event.message;
+    const args = message.trim().slice(prefix.length).split(/\s+/g);
+    const command = args[0];
+    if (command !== "config") {
+        return;
+    }
+    ;
+    Logger.warn(args.toString());
+    if (args[1]?.match(/^-(tos|bl)$/)) {
+        let addonName = "";
+        switch (args[1].slice(1)) {
+            case "tos":
+                addonName = "Torch O' Useful";
+                break;
+            case "bl":
+                addonName = "Better Laddering";
+                break;
+            default:
+                event.cancel = true;
+                break;
+        }
+        if (args[2]?.match(/^(help|-h)$/)) {
+            player.sendMessage(`${addonName} Configuration:`);
+        }
+    }
+    event.cancel = true;
 });
