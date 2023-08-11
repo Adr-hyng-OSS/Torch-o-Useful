@@ -6,7 +6,7 @@ export default {
   /**
    * Toggle for igniting the tnt, similar to Fire Aspect behavior.
    */
-  igniteTNT: false,
+  igniteTNT: true,
   /**
    * This makes custom torches that doesn't endswith: 
    * .*_torch or .*torch 
