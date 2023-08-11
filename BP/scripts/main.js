@@ -67,21 +67,21 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
     });
     if (!torchHand)
         return;
+    let justExecuted = false;
     const onBlockPlaced = world.afterEvents.blockPlace.subscribe((event2) => {
         system.run(() => world.afterEvents.blockPlace.unsubscribe(onBlockPlaced));
-        const onBlockPlacedOldLog = onBlockPlacedLogMap.get(player.id);
-        onBlockPlacedLogMap.set(player.id, Date.now());
-        if ((onBlockPlacedOldLog + 150) >= Date.now())
+        if (justExecuted)
             return;
+        Logger.warn("PLACEING");
         const blockPlaced = event2.block;
         const blockPlacePlayer = event2.player;
         const blockPlacedItemStack = blockPlaced.getItemStack();
-        if (!Compare.types.isEqual(blockPlacedItemStack.type, mainHand.type))
+        if (!Compare.types.isEqual(blockPlacedItemStack?.type, mainHand?.type))
             return;
-        if (!Compare.types.isEqual(blockPlacePlayer.id, player.id))
+        if (!Compare.types.isEqual(blockPlacePlayer?.id, player?.id))
             return;
         blockPlaced.setType(MinecraftBlockTypes.air);
-        Logger.warn(!isTorchIncluded(blockPlacedItemStack.typeId), blockPlacedItemStack.typeId);
+        justExecuted = true;
         if (!isTorchIncluded(blockPlacedItemStack.typeId))
             inventory.addItem(blockPlacedItemStack.type, 1);
         if (permutations["lit"] === undefined && permutations["extinguished"] === undefined)
@@ -92,7 +92,6 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
         }
         if (permutations["lit"] === true || permutations["extinguished"] === false)
             return;
-        Logger.warn("holding a placeable item");
         for (const [key, value] of Object.entries(permutations)) {
             if (key === "lit" && value === false) {
                 const flag = value;

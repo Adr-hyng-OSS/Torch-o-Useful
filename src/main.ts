@@ -77,6 +77,8 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 	// If there's no torch in any of the hand, then return;
   if(!torchHand) return;
 
+	let justExecuted = false;
+
 	//* This block handles, when you are holding a placeable items like:
 	//* such as ladders, torches, blocks, etc.
 	//* So, whenever that happens, then set that to air.
@@ -93,26 +95,28 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 		 * * But, it doesn't block cancel the notValidTorches like blocks, etc.
 		 */
 		system.run(() => world.afterEvents.blockPlace.unsubscribe(onBlockPlaced));
+		if(justExecuted) return;
+		Logger.warn("PLACEING");
 
-		const onBlockPlacedOldLog: number = onBlockPlacedLogMap.get(player.id);
-		onBlockPlacedLogMap.set(player.id, Date.now());
-		if ((onBlockPlacedOldLog + 150) >= Date.now()) return;
+		// const onBlockPlacedOldLog: number = onBlockPlacedLogMap.get(player.id);
+		// onBlockPlacedLogMap.set(player.id, Date.now());
+		// if ((onBlockPlacedOldLog + 150) >= Date.now()) return;
 
 		const blockPlaced = event2.block;
 		const blockPlacePlayer = event2.player;
 		const blockPlacedItemStack = blockPlaced.getItemStack();
-		if(!Compare.types.isEqual(blockPlacedItemStack.type, mainHand.type)) return;
-		if(!Compare.types.isEqual(blockPlacePlayer.id, player.id)) return;
+		if(!Compare.types.isEqual(blockPlacedItemStack?.type, mainHand?.type)) return;
+		if(!Compare.types.isEqual(blockPlacePlayer?.id, player?.id)) return;
 
 		blockPlaced.setType(MinecraftBlockTypes.air);
-		Logger.warn(!isTorchIncluded(blockPlacedItemStack.typeId), blockPlacedItemStack.typeId);
+		justExecuted = true;
+
 		if(!isTorchIncluded(blockPlacedItemStack.typeId)) inventory.addItem(blockPlacedItemStack.type, 1);	
 		if(permutations["lit"] === undefined && permutations["extinguished"] === undefined) return;
 		if(!consumeTorchOnLit) {
 			if(isTorchIncluded(blockPlacedItemStack.typeId)) inventory.addItem(blockPlacedItemStack.type, 1);	
 		}
 		if(permutations["lit"] === true || permutations["extinguished"] === false) return;
-		Logger.warn("holding a placeable item");
 
 		for (const [key, value] of Object.entries(permutations)) {
 			if(key === "lit" && value === false) {
@@ -128,7 +132,6 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 		}
 		return;
 	});
-
 	// If its not a block that has "lit" or "extinguished" state, then return.
 	if(permutations["lit"] === undefined && permutations["extinguished"] === undefined) return;
 
