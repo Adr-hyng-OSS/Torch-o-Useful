@@ -22,6 +22,12 @@ world.afterEvents.entityHurt.subscribe((event) => {
     if (!([isTorchIncluded(mainHand), isTorchIncluded(offHand)].some(hand => hand === true)))
         return;
     let handToUse = prioritizeMainHand ? mainHand : offHand;
+    if (!mainHand)
+        handToUse = offHand;
+    if (!offHand)
+        handToUse = mainHand;
+    if (!handToUse)
+        return;
     const updatedTorchFireEffects = Object.assign({}, DEFAULT_EFFECTS, torchFireEffects);
     Object.keys(updatedTorchFireEffects).forEach((key) => {
         if (typeof updatedTorchFireEffects[key] === "number")
@@ -30,6 +36,7 @@ world.afterEvents.entityHurt.subscribe((event) => {
     if (!isTorchIncluded(handToUse)) {
         handToUse = Compare.types.isEqual(handToUse, mainHand) ? offHand : mainHand;
     }
+    Logger.warn(mainHand, offHand, handToUse);
     if (isTorchIncluded(handToUse)) {
         hurtedEntity.setOnFire(updatedTorchFireEffects[handToUse] ?? 0, true);
     }
@@ -99,7 +106,6 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
             }
             if (key === "explode_bit" && value === false && igniteTNT) {
                 _block.setType(MinecraftBlockTypes.air);
-                Logger.warn("Spawn TNT 1");
                 blockPlacePlayer.dimension.spawnEntity("minecraft:tnt", _block.location);
                 break;
             }
@@ -110,7 +116,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
         return;
     if (permutations["lit"] === true || permutations["extinguished"] === false)
         return;
-    if (!justExecuted)
+    if (justExecuted)
         return;
     if (consumeTorchOnLit)
         inventory.clearItem(torchHand.item.typeId, 1);
@@ -127,7 +133,6 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
         }
         if (key === "explode_bit" && value === false && igniteTNT) {
             _block.setType(MinecraftBlockTypes.air);
-            Logger.warn("Spawn TNT 2");
             player.dimension.spawnEntity("minecraft:tnt", _block.location);
             justExecuted = true;
             break;

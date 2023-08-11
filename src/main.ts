@@ -1,5 +1,5 @@
 import { Compare, isTorchIncluded, torchFireEffects, prioritizeMainHand, consumeTorchOnLit, CContainer, forceSetPermutation, Logger, igniteTNT } from "./packages";
-import {EntityComponent, EntityDamageCause, EntityEquipmentInventoryComponent, EntityInventoryComponent, EquipmentSlot, MinecraftBlockTypes, MinecraftItemTypes, Player, TicksPerSecond, system, world} from "@minecraft/server";
+import {EntityDamageCause, EntityEquipmentInventoryComponent, EntityInventoryComponent, EquipmentSlot, MinecraftBlockTypes, MinecraftItemTypes, Player, TicksPerSecond, system, world} from "@minecraft/server";
 
 const logMap: Map<string, number> = new Map<string, number>();
 
@@ -21,6 +21,9 @@ world.afterEvents.entityHurt.subscribe((event) => {
   const offHand = equipment.getEquipment(EquipmentSlot.offhand)?.typeId;
   if(!([isTorchIncluded(mainHand), isTorchIncluded(offHand)].some(hand => hand === true))) return;
   let handToUse = prioritizeMainHand ? mainHand : offHand;
+	if(!mainHand) handToUse = offHand;
+	if(!offHand) handToUse = mainHand; 
+	if(!handToUse) return;
   const updatedTorchFireEffects = Object.assign({}, DEFAULT_EFFECTS, torchFireEffects);
   Object.keys(updatedTorchFireEffects).forEach((key) => {
     if (typeof updatedTorchFireEffects[key] === "number") updatedTorchFireEffects[key] = Math.round(updatedTorchFireEffects[key] / TicksPerSecond);
@@ -28,14 +31,13 @@ world.afterEvents.entityHurt.subscribe((event) => {
   if (!isTorchIncluded(handToUse)) {
       handToUse = Compare.types.isEqual(handToUse, mainHand) ? offHand : mainHand;
   }
+	Logger.warn(mainHand, offHand, handToUse);
   if (isTorchIncluded(handToUse)) {
       hurtedEntity.setOnFire(updatedTorchFireEffects[handToUse] ?? 0, true);
   }
 });
 
-// Since you can't trigger itemUseOn with a hand, try using entityHit instead.
 
-//!! SEND THIS CODE FOR DISCORD FOR RESOLVING.
 world.beforeEvents.itemUseOn.subscribe(async (event) => {
 	// This only works for hitting the sides, and not the top or bottom of the campfire or candle.
   const _block = event.block;
@@ -137,7 +139,6 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 			}
 			if(key === "explode_bit" && value === false && igniteTNT) {
 				_block.setType(MinecraftBlockTypes.air);
-				Logger.warn("Spawn TNT 1");
 				blockPlacePlayer.dimension.spawnEntity("minecraft:tnt", _block.location);
 				break;
 			}
@@ -156,7 +157,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 	//* a placeable item like ladder, torch, block, etc.
 	//* Also, It will automatically extinguish the campfire, if you are holding
 	//* a shovel, and you are interacting it too fast, wait for the timer.
-	if(!justExecuted) return;
+	if(justExecuted) return;
 	if(consumeTorchOnLit) inventory.clearItem(torchHand.item.typeId, 1);	
 	for (const [key, value] of Object.entries(permutations)) {
 		if(key === "lit" && value === false) {
@@ -171,7 +172,6 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 		}
 		if(key === "explode_bit" && value === false && igniteTNT) {
 			_block.setType(MinecraftBlockTypes.air);
-			Logger.warn("Spawn TNT 2");
 			player.dimension.spawnEntity("minecraft:tnt", _block.location);
 			justExecuted = true;
 			break;

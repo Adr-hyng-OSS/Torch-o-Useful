@@ -6,7 +6,7 @@ export default {
   /**
    * Toggle for igniting the tnt, similar to Fire Aspect behavior.
    */
-  igniteTNT: true,
+  igniteTNT: false,
   /**
    * This makes custom torches that doesn't endswith: 
    * .*_torch or .*torch 
@@ -31,7 +31,7 @@ export default {
   /**
    * Prioritize mainhand over offhand. If false, it will prioritize offhand over mainhand.
    */
-  prioritizeMainHand: true,
+  prioritizeMainHand: false,
   /**
    * Toggle for consuming the torch when lighting a campfire, candle or tnt.
    */

@@ -1,7 +1,7 @@
 {
   "igniteTNT": {
     "description": "Toggle for igniting the tnt, similar to Fire Aspect behavior.",
-    "default": true
+    "default": false
   },
   "includeCustomTorch": {
     "description": "This makes custom torches that doesn't endswith: \n.*_torch or .*torch \nbe included too.\nList of included Custom Torch, since it only accepts any torches that endswith: *.torch or .*_torch \nExample: \n - minecraft:torch\n - minecraft:soul_torch\n - minecraft:redstone_torch\n - any_custom:torch\n - any:_torch",
@@ -14,7 +14,7 @@
 
   "prioritizeMainHand": {
     "description": "Prioritize mainhand over offhand. If false, it will prioritize offhand over mainhand.",
-    "default": true
+    "default": false
   },
 
   "consumeTorchOnLit": {
