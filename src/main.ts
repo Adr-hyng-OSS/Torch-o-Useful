@@ -29,11 +29,11 @@ world.afterEvents.entityHurt.subscribe((event) => {
     if (typeof updatedTorchFireEffects[key] === "number") updatedTorchFireEffects[key] = Math.round(updatedTorchFireEffects[key] / TicksPerSecond);
   });
   if (!isTorchIncluded(handToUse)) {
-      handToUse = Compare.types.isEqual(handToUse, mainHand) ? offHand : mainHand;
+		handToUse = Compare.types.isEqual(handToUse, mainHand) ? offHand : mainHand;
   }
 	Logger.warn(mainHand, offHand, handToUse);
   if (isTorchIncluded(handToUse)) {
-      hurtedEntity.setOnFire(updatedTorchFireEffects[handToUse] ?? 0, true);
+		hurtedEntity.setOnFire(updatedTorchFireEffects[handToUse] ?? 0, true);
   }
 });
 
@@ -85,8 +85,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 	//* such as ladders, torches, blocks, etc.
 	//* So, whenever that happens, then set that to air.
 	//* and handle, the consume toggle configuration.
-
-	//! It doesn't clear the torch, when it is 0, and the consume toggle is on.
+	//? The fire aspect mechanics doesn't need required the "prioritizeHand" config.
 	const onBlockPlaced = world.afterEvents.blockPlace.subscribe((onPlaced) => {
 		system.run(() => world.afterEvents.blockPlace.unsubscribe(onBlockPlaced));
 

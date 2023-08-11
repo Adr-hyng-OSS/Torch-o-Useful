@@ -29,13 +29,14 @@ export default {
    */
   excludeCustomTorch: [],
   /**
-   * Prioritize mainhand over offhand. If false, it will prioritize offhand over mainhand.
+   * Prioritize mainhand over offhand. If false, it will prioritize offhand over mainhand. 
+   * (Only works for Hitting Entity)
    */
-  prioritizeMainHand: false,
+  prioritizeMainHand: true,
   /**
    * Toggle for consuming the torch when lighting a campfire, candle or tnt.
    */
-  consumeTorchOnLit: false,
+  consumeTorchOnLit: true,
   /**
    * Map of torch effects to apply. 
    * (i.g Torch: 40 ticks, Soul Torch: 60 ticks)
