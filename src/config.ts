@@ -35,7 +35,7 @@ export default {
   /**
    * Toggle for consuming the torch when lighting a campfire, candle or tnt.
    */
-  consumeTorchOnLit: true,
+  consumeTorchOnLit: false,
   /**
    * Map of torch effects to apply. 
    * (i.g Torch: 40 ticks, Soul Torch: 60 ticks)

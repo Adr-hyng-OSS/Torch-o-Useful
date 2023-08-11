@@ -1,5 +1,4 @@
-import { Container, Entity, EntityEquipmentInventoryComponent, EquipmentSlot, ItemStack, ItemType, Player } from "@minecraft/server";
-import { Compare, Logger } from "../packages";
+import { Container, EntityEquipmentInventoryComponent, EquipmentSlot, ItemStack, ItemType, Player } from "@minecraft/server";
 
 interface IContainer {
     addItem(itemTypeToAdd: ItemType, amount: number): void;
@@ -47,7 +46,6 @@ class CContainer implements IContainer {
 
     clearItem(itemId: string, decrement: number): boolean {
         const clearSlots = [];
-        Logger.warn(itemId);
         const equipment = (this._holder.getComponent(EntityEquipmentInventoryComponent.componentId) as EntityEquipmentInventoryComponent);
         const offhand = equipment.getEquipment(EquipmentSlot.offhand);
         for (let i = 0; i < this.inventory.size; i++) {
@@ -104,7 +102,7 @@ class CContainer implements IContainer {
         for (let i = 0; i < this.inventory.size; i++) {
             let item: ItemStack = this.inventory.getItem(i);
             if (!item) continue;
-            if (!Compare.types.isEqual(item.type, itemToCheck)) continue;
+            if (item.type !== itemToCheck) continue;
             itemAmount += item.amount;
         }
         return itemAmount;

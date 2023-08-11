@@ -1,22 +1,13 @@
-import { Compare, Logger, isTorchIncluded, torchFireEffects, prioritizeMainHand, consumeTorchOnLit, CContainer } from "./packages";
-import {Block, BlockPlaceAfterEvent, EntityDamageCause, EntityEquipmentInventoryComponent, EntityInventoryComponent, EquipmentSlot, MinecraftBlockTypes, MinecraftItemTypes, Player, TicksPerSecond, system, world} from "@minecraft/server";
+import { Compare, isTorchIncluded, torchFireEffects, prioritizeMainHand, consumeTorchOnLit, CContainer, forceSetPermutation, Logger } from "./packages";
+import {EntityDamageCause, EntityEquipmentInventoryComponent, EntityInventoryComponent, EquipmentSlot, MinecraftBlockTypes, MinecraftItemTypes, Player, TicksPerSecond, system, world} from "@minecraft/server";
 
 const logMap: Map<string, number> = new Map<string, number>();
-const onBlockPlacedLogMap: Map<string, number> = new Map<string, number>();
 
 const DEFAULT_EFFECTS: Map<string, number> = new Map([
   [MinecraftItemTypes.torch.id, 40],
   [MinecraftItemTypes.soulTorch.id, 60],
   [MinecraftItemTypes.redstoneTorch.id, 40]
 ]);
-
-
-//! Create Configuration for, when you lighting the blocks the Fire Aspect can light to consume torch or not.
-
-function forceSetPermutation(_block: Block, flag: boolean, state: string = "lit"){
-  const perm = _block.permutation.withState(state, !flag);
-  system.run(() => _block.setPermutation(perm));
-}
 
 world.afterEvents.entityHurt.subscribe((event) => {
   const player: Player = event.damageSource.damagingEntity as Player;
@@ -44,6 +35,11 @@ world.afterEvents.entityHurt.subscribe((event) => {
 
 // Since you can't trigger itemUseOn with a hand, try using entityHit instead.
 
+world.afterEvents.itemUseOn.subscribe((event) => {
+	Logger.warn(JSON.stringify(event.block.permutation.getAllStates()));
+});
+
+//!! SEND THIS CODE FOR DISCORD FOR RESOLVING.
 world.beforeEvents.itemUseOn.subscribe(async (event) => {
 	// This only works for hitting the sides, and not the top or bottom of the campfire or candle.
   const _block = event.block;
@@ -62,6 +58,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
   const permutations: Map<string, string | number | boolean | undefined> = JSON.parse(JSON.stringify(_block.permutation.getAllStates()));
 
 	// If block interacted doesn't have "lit", and "extinguished", then return, meaning it is not campfire or candle like.
+
   if(permutations["lit"] === undefined && permutations["extinguished"] === undefined) return;
 
 	// Get the main, and offhand items.

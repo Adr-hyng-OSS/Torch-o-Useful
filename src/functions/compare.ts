@@ -11,6 +11,8 @@ class Compare {
 
     static types = class {
         static isEqual(a: SelectedTypes, b: SelectedTypes): boolean {
+            if(a === undefined) return false;
+            if(b === undefined) return false;
             if (a.constructor !== b.constructor) {
                 throw new Error("Types of a and b are not the same");
             }

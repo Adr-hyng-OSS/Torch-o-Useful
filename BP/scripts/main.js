@@ -1,16 +1,11 @@
-import { Compare, isTorchIncluded, torchFireEffects, prioritizeMainHand, consumeTorchOnLit, CContainer } from "./packages";
+import { Compare, isTorchIncluded, torchFireEffects, prioritizeMainHand, consumeTorchOnLit, CContainer, forceSetPermutation, Logger } from "./packages";
 import { EntityDamageCause, EntityEquipmentInventoryComponent, EntityInventoryComponent, EquipmentSlot, MinecraftBlockTypes, MinecraftItemTypes, Player, TicksPerSecond, system, world } from "@minecraft/server";
 const logMap = new Map();
-const onBlockPlacedLogMap = new Map();
 const DEFAULT_EFFECTS = new Map([
     [MinecraftItemTypes.torch.id, 40],
     [MinecraftItemTypes.soulTorch.id, 60],
     [MinecraftItemTypes.redstoneTorch.id, 40]
 ]);
-function forceSetPermutation(_block, flag, state = "lit") {
-    const perm = _block.permutation.withState(state, !flag);
-    system.run(() => _block.setPermutation(perm));
-}
 world.afterEvents.entityHurt.subscribe((event) => {
     const player = event.damageSource.damagingEntity;
     const cause = event.damageSource.cause;
@@ -38,6 +33,9 @@ world.afterEvents.entityHurt.subscribe((event) => {
     if (isTorchIncluded(handToUse)) {
         hurtedEntity.setOnFire(updatedTorchFireEffects[handToUse] ?? 0, true);
     }
+});
+world.afterEvents.itemUseOn.subscribe((event) => {
+    Logger.warn(JSON.stringify(event.block.permutation.getAllStates()));
 });
 world.beforeEvents.itemUseOn.subscribe(async (event) => {
     const _block = event.block;

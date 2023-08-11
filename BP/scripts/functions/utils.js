@@ -1,3 +1,4 @@
+import { system } from "@minecraft/server";
 import { includeCustomTorch, excludeCustomTorch } from "../packages";
 function isTorchIncluded(blockID) {
     const currentPatterns = [
@@ -12,4 +13,8 @@ function isTorchIncluded(blockID) {
     const combinedPattern = new RegExp(patterns.join('|'));
     return combinedPattern.test(blockID);
 }
-export { isTorchIncluded };
+function forceSetPermutation(_block, flag, state = "lit") {
+    const perm = _block.permutation.withState(state, !flag);
+    system.run(() => _block.setPermutation(perm));
+}
+export { isTorchIncluded, forceSetPermutation };

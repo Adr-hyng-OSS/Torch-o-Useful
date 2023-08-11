@@ -1,5 +1,5 @@
-import { Block, MinecraftBlockTypes, Vector3 } from "@minecraft/server";
-import {includeCustomTorch, excludeCustomTorch, Compare} from "../packages";
+import { Block, system } from "@minecraft/server";
+import {includeCustomTorch, excludeCustomTorch} from "../packages";
 
 function isTorchIncluded(blockID: string): boolean {
   const currentPatterns: string[] = [
@@ -18,4 +18,9 @@ function isTorchIncluded(blockID: string): boolean {
   return combinedPattern.test(blockID);
 }
 
-export {isTorchIncluded};
+function forceSetPermutation(_block: Block, flag: boolean, state: string = "lit"){
+  const perm = _block.permutation.withState(state, !flag);
+  system.run(() => _block.setPermutation(perm));
+}
+
+export {isTorchIncluded, forceSetPermutation};
