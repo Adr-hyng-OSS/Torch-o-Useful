@@ -1,5 +1,6 @@
-import { Block, system } from "@minecraft/server";
+import { Block, Player, system } from "@minecraft/server";
 import {includeCustomTorch, excludeCustomTorch} from "../packages";
+import { ActionFormData, ActionFormResponse, FormCancelationReason, ModalFormData, ModalFormResponse } from "@minecraft/server-ui";
 
 function isTorchIncluded(blockID: string): boolean {
   const currentPatterns: string[] = [
@@ -23,4 +24,19 @@ function forceSetPermutation(_block: Block, flag: boolean, state: string = "lit"
   system.run(() => _block.setPermutation(perm));
 }
 
-export {isTorchIncluded, forceSetPermutation};
+async function forceShow(player: Player, form: ActionFormData | ModalFormData, timeout: number = Infinity): Promise<ActionFormResponse | ModalFormResponse> {
+    // Script example for ScriptAPI
+    // Author: Jayly#1397 <Jayly Discord>
+    //         Worldwidebrine#9037 <Bedrock Add-Ons>
+    // Project: https://github.com/JaylyDev/ScriptAPI
+    const startTick: number = system.currentTick;
+    while ((system.currentTick - startTick) < timeout) {
+        const response: ActionFormResponse | ModalFormResponse = await (form.show(player)).catch(er=>console.error(er,er.stack)) as ActionFormResponse | ModalFormResponse;
+        if (response.cancelationReason !== FormCancelationReason.userBusy) {
+            return response;
+        }
+    };
+    throw new Error(`Timed out after ${timeout} ticks`);
+};
+
+export {isTorchIncluded, forceSetPermutation, forceShow};

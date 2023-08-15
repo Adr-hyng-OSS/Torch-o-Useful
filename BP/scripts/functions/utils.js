@@ -1,5 +1,6 @@
 import { system } from "@minecraft/server";
 import { includeCustomTorch, excludeCustomTorch } from "../packages";
+import { FormCancelationReason } from "@minecraft/server-ui";
 function isTorchIncluded(blockID) {
     const currentPatterns = [
         '^[\\w\\-]+:(?:[\\w_]+_)?torch$'
@@ -17,4 +18,16 @@ function forceSetPermutation(_block, flag, state = "lit") {
     const perm = _block.permutation.withState(state, !flag);
     system.run(() => _block.setPermutation(perm));
 }
-export { isTorchIncluded, forceSetPermutation };
+async function forceShow(player, form, timeout = Infinity) {
+    const startTick = system.currentTick;
+    while ((system.currentTick - startTick) < timeout) {
+        const response = await (form.show(player)).catch(er => console.error(er, er.stack));
+        if (response.cancelationReason !== FormCancelationReason.userBusy) {
+            return response;
+        }
+    }
+    ;
+    throw new Error(`Timed out after ${timeout} ticks`);
+}
+;
+export { isTorchIncluded, forceSetPermutation, forceShow };

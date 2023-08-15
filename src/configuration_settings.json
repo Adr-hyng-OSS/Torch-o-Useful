@@ -23,7 +23,7 @@
   },
 
   "torchFireEffects": {
-    "description": "Map of torch effects to apply. \n(i.g Torch: 40 ticks, Soul Torch: 60 ticks)",
+    "description": "Torches with their fire ticks, when you hit the mob on how many seconds to make it the mob in fire. \n(i.g Torch: 40 ticks, Soul Torch: 60 ticks)",
     "default": {
       "minecraft:torch": 40,
       "minecraft:soul_torch": 60,

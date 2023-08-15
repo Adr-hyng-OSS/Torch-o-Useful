@@ -38,7 +38,7 @@ export default {
    */
   consumeTorchOnLit: true,
   /**
-   * Map of torch effects to apply. 
+   * Torches with their fire ticks, when you hit the mob on how many seconds to make it the mob in fire. 
    * (i.g Torch: 40 ticks, Soul Torch: 60 ticks)
    */
   torchFireEffects: {'minecraft:torch': 40, 'minecraft:soul_torch': 60, 'minecraft:redstone_torch': 40, 'custom_namespace:custom_torch': 40},

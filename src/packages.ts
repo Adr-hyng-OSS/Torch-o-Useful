@@ -1,5 +1,7 @@
 import config from "./config";
 export * from "./config";
+
+export * from "./custom_config";
 export * from "./functions/compare";
 export * from "./functions/utils";
 
@@ -13,8 +15,7 @@ const {
     includeCustomTorch,
     torchFireEffects,
     prioritizeMainHand,
-    consumeTorchOnLit
+    consumeTorchOnLit,
 } = config;
-
 
 export {debug, igniteTNT, excludeCustomTorch, includeCustomTorch, torchFireEffects, prioritizeMainHand, consumeTorchOnLit};

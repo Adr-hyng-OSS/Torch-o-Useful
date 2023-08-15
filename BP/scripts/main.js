@@ -1,5 +1,6 @@
-import { Compare, isTorchIncluded, torchFireEffects, prioritizeMainHand, consumeTorchOnLit, CContainer, forceSetPermutation, Logger, igniteTNT } from "./packages";
-import { EntityDamageCause, EntityEquipmentInventoryComponent, EntityInventoryComponent, EquipmentSlot, MinecraftBlockTypes, MinecraftItemTypes, Player, TicksPerSecond, system, world } from "@minecraft/server";
+import { Compare, isTorchIncluded, torchFireEffects, prioritizeMainHand, consumeTorchOnLit, CContainer, forceSetPermutation, Logger, igniteTNT, forceShow } from "./packages";
+import { EntityDamageCause, EntityEquipmentInventoryComponent, EntityInventoryComponent, EquipmentSlot, MessageSourceType, MinecraftBlockTypes, MinecraftItemTypes, Player, TicksPerSecond, system, world } from "@minecraft/server";
+import { ActionFormData, ModalFormData } from "@minecraft/server-ui";
 const logMap = new Map();
 const DEFAULT_EFFECTS = new Map([
     [MinecraftItemTypes.torch.id, 40],
@@ -138,33 +139,126 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
         }
     }
 });
-world.beforeEvents.chatSend.subscribe((event) => {
-    const prefix = "!";
-    let player = event.sender;
-    let message = event.message;
-    const args = message.trim().slice(prefix.length).split(/\s+/g);
-    const command = args[0];
-    if (command !== "config") {
+import * as configKeys from "./config";
+const ui = {
+    main: (id, player) => {
+        const isPlainObject = (value) => typeof value === 'object' && !Array.isArray(value) && value !== null && !(value instanceof Function);
+        const isMap = (value) => value instanceof Map;
+        const keys = {
+            "basic": [],
+            "customized": [],
+            "advanced": []
+        };
+        for (const [key, value] of Object.entries(configKeys.default)) {
+            if (typeof value === "boolean") {
+                keys.basic.push([key, value]);
+            }
+            else if (typeof value === "string") {
+                keys.basic.push([key, value]);
+            }
+            else if (typeof value === "number") {
+                keys.basic.push([key, value]);
+            }
+            else if (Array.isArray(value)) {
+                keys.customized.push({ key: key, value: value });
+            }
+            else if (isPlainObject(value) || isMap(value)) {
+                keys.advanced.push({ key: key, value: value });
+            }
+        }
+        const main = new ActionFormData()
+            .title({ translate: `ConfigurationForm.${id}.addonIdentifier.name`, with: ["\n"] })
+            .button({ translate: `ConfigurationForm.${id}.basic.name`, with: ["\n"] })
+            .button({ translate: `ConfigurationForm.${id}.listOptions.name`, with: ["\n"] })
+            .button({ translate: `ConfigurationForm.${id}.dictionaryOptions.name`, with: ["\n"] });
+        forceShow(player, main).then((result) => {
+            if (result.canceled)
+                return player.sendMessage('Ui closed!');
+            if (result.selection === 0)
+                ui.basic(id, player, keys.basic);
+            if (result.selection === 1)
+                ui.customize(id, player, keys.customized);
+            if (result.selection === 2)
+                ui.advanced(id, player, keys.advanced);
+        });
+    },
+    basic: (id, player, keyValues) => {
+        const basicForm = new ModalFormData()
+            .title({ translate: `ConfigurationForm.${id}.basic.name`, with: ["\n"] })
+            .toggle({ translate: `ConfigurationForm.${id}.misc.back.text`, with: ["\n"] }, false);
+        for (let [key, value] of keyValues) {
+            if (typeof value === "boolean") {
+                basicForm.toggle({ translate: `ConfigurationForm.${id}.${key}.name`, with: ["\n"] }, value);
+            }
+            else if (typeof value === "string") {
+                basicForm.textField({ translate: `ConfigurationForm.${id}.${key}.name`, with: ["\n"] }, value);
+            }
+            else if (typeof value === "number") {
+                basicForm.textField({ translate: `ConfigurationForm.${id}.${key}.name`, with: ["\n"] }, value + "");
+            }
+        }
+        forceShow(player, basicForm).then((result) => {
+            if (result.canceled)
+                return player.sendMessage('Ui closed!');
+            result.formValues.forEach((value, key) => {
+                if (key === 0 && value === true)
+                    ui.main(id, player);
+            });
+        }).catch((e) => {
+            Logger.warn(e, e.stack);
+        });
+    },
+    customize: (id, player, keyValues) => {
+        let selectedIndex = 0;
+        const customizationForm = new ModalFormData()
+            .toggle({ translate: `ConfigurationForm.${id}.misc.back.text`, with: ["\n"] }, false);
+        for (const [key, value] of Object.entries(keyValues)) {
+            customizationForm.dropdown({ translate: `ConfigurationForm.${id}.${key}.name`, with: ["\n"] }, ["Create New", ...Array(value)], selectedIndex);
+            customizationForm.textField({ translate: `Add `, with: ["\n"] }, "Key -> Create or Update");
+        }
+        forceShow(player, customizationForm).then((result) => {
+            if (result.canceled)
+                return player.sendMessage('Ui closed!');
+            result.formValues.forEach((value, key) => {
+                Logger.warn(`KEY: ${key}, VALUE: ${value}`);
+                if (key === 0 && value === true)
+                    ui.main(id, player);
+            });
+        });
+    },
+    advanced: (id, player, keyValues) => {
+        let selectedIndex = 0;
+        const advancedForm = new ModalFormData()
+            .toggle({ translate: `ConfigurationForm.${id}.misc.back.text`, with: ["\n"] }, false);
+        forceShow(player, advancedForm).then((result) => {
+            if (result.canceled)
+                return player.sendMessage('Ui closed!');
+            result.formValues.forEach((value, key) => {
+                Logger.warn(`KEY: ${key}, VALUE: ${value}`);
+                if (key === 0 && value === true)
+                    ui.main(id, player);
+            });
+        });
+    }
+};
+system.events.scriptEventReceive.subscribe((event) => {
+    const { id, initiator, message, sourceBlock, sourceEntity, sourceType } = event;
+    if (sourceType !== MessageSourceType.clientScript)
         return;
-    }
-    ;
-    Logger.warn(args.toString());
-    if (args[1]?.match(/^-(tos|bl)$/)) {
-        let addonName = "";
-        switch (args[1].slice(1)) {
-            case "tos":
-                addonName = "Torch O' Useful";
-                break;
-            case "bl":
-                addonName = "Better Laddering";
-                break;
-            default:
-                event.cancel = true;
-                break;
-        }
-        if (args[2]?.match(/^(help|-h)$/)) {
-            player.sendMessage(`${addonName} Configuration:`);
+    if (!sourceEntity)
+        return;
+    if (!(sourceEntity instanceof Player))
+        return;
+    if (id.match(/^yn:torchouseful$/)) {
+        if (message.match(/^config$/)) {
+            Logger.warn(`ID: ${id}, INIT: ${initiator}, MSG: ${message}, SRC: ${sourceType}, PLY: ${sourceEntity?.nameTag}`);
+            system.run(() => {
+                ui.main(id, sourceEntity);
+            });
         }
     }
-    event.cancel = true;
+    if (!sourceBlock)
+        return;
+    if (!sourceType)
+        return;
 });
