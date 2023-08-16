@@ -1,39 +1,34 @@
 {
-  "configOption1": {
-    "description": "String Test",
-    "type": "string",
-    "default": "test"
-  },
-  "configOption2": {
-    "description": "String Test\nString Test2",
+  "igniteTNT": {
+    "description": "Toggle for igniting the tnt, similar to Fire Aspect behavior.",
     "type": "boolean",
-    "default": true
+    "default": false
   },
-  "configOption3": {
-    "description": "String Test",
-    "type": "number",
-    "default": 5
-  },
-  "configOption4": {
-    "description": "String Test",
-    "type": "range",
-    "default": {
-      "from": 1,
-      "to": 5
-    }
-  },
-  "configOption5": {
-    "description": "String Test",
+  "includeCustomTorch": {
+    "description": "This makes custom torches that doesn't endswith: \n.*_torch or .*torch \nbe included too.\nList of included Custom Torch, since it only accepts any torches that endswith: *.torch or .*_torch \nExample: \n - minecraft:torch\n - minecraft:soul_torch\n - minecraft:redstone_torch\n - any_custom:torch\n - any:_torch",
     "type": "customizableArray",
     "default": []
   },
-  "configOption6": {
-    "description": "String Test",
-    "type": "selectionArray",
+  "excludeCustomTorch": {
+    "description": "List of Custom or Vanilla torches to exclude.\nExample: \n - minecraft:soul_torch\n - .*_torch\n - any_custom:torch",
+    "type": "customizableArray",
     "default": []
   },
-  "configOption7": {
-    "description": "String Test",
+
+  "prioritizeMainHand": {
+    "description": "Prioritize mainhand over offhand. If false, it will prioritize offhand over mainhand. \n(Only works for Hitting Entity)",
+    "type": "boolean",
+    "default": true
+  },
+
+  "consumeTorchOnLit": {
+    "description": "Toggle for consuming the torch when lighting a campfire, candle or tnt.",
+    "type": "boolean",
+    "default": true
+  },
+
+  "torchFireEffects": {
+    "description": "Torches with their fire ticks, when you hit the mob on how many seconds to make it the mob in fire. \n(i.g Torch: 40 ticks, Soul Torch: 60 ticks)",
     "type": "customizableMap",
     "default": {
       "minecraft:torch": 40,

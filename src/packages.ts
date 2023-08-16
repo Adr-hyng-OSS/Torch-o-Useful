@@ -9,34 +9,20 @@ export * from "./classes/inventory";
 
 const {
     debug,
-    configOption1,
-    configOption2,
-    configOption3,
-    configOption4,
-    configOption5,
-    configOption6,
-    configOption7,
-    // igniteTNT,
-    // excludeCustomTorch,
-    // includeCustomTorch,
-    // torchFireEffects,
-    // prioritizeMainHand,
-    // consumeTorchOnLit,
+    igniteTNT,
+    excludeCustomTorch,
+    includeCustomTorch,
+    torchFireEffects,
+    prioritizeMainHand,
+    consumeTorchOnLit,
 } = config;
 
 export {
     debug, 
-    configOption1,
-    configOption2,
-    configOption3,
-    configOption4,
-    configOption5,
-    configOption6,
-    configOption7,
-    // igniteTNT, 
-    // excludeCustomTorch, 
-    // includeCustomTorch, 
-    // torchFireEffects, 
-    // prioritizeMainHand, 
-    // consumeTorchOnLit
+    igniteTNT, 
+    excludeCustomTorch, 
+    includeCustomTorch, 
+    torchFireEffects, 
+    prioritizeMainHand, 
+    consumeTorchOnLit
 };
