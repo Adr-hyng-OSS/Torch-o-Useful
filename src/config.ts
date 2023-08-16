@@ -4,44 +4,44 @@ export default {
    */
   debug: true,
   /**
-   * Toggle for igniting the tnt, similar to Fire Aspect behavior.
+   * String Test
    */
-  igniteTNT: false,
+  configOption1: "test",
   /**
-   * This makes custom torches that doesn't endswith: 
-   * .*_torch or .*torch 
-   * be included too.
-   * List of included Custom Torch, since it only accepts any torches that endswith: *.torch or .*_torch 
-   * Example: 
-   *  - minecraft:torch
-   *  - minecraft:soul_torch
-   *  - minecraft:redstone_torch
-   *  - any_custom:torch
-   *  - any:_torch
+   * String Test
+   * String Test2
    */
-  includeCustomTorch: [],
+  configOption2: true,
   /**
-   * List of Custom or Vanilla torches to exclude.
-   * Example: 
-   *  - minecraft:soul_torch
-   *  - .*_torch
-   *  - any_custom:torch
+   * String Test
    */
-  excludeCustomTorch: [],
+  configOption3: 5,
   /**
-   * Prioritize mainhand over offhand. If false, it will prioritize offhand over mainhand. 
-   * (Only works for Hitting Entity)
+   * String Test
    */
-  prioritizeMainHand: true,
+  configOption4: {
+		"from": 1,
+		"to": 5
+	},
   /**
-   * Toggle for consuming the torch when lighting a campfire, candle or tnt.
+   * String Test
    */
-  consumeTorchOnLit: true,
+  configOption5: [],
   /**
-   * Torches with their fire ticks, when you hit the mob on how many seconds to make it the mob in fire. 
-   * (i.g Torch: 40 ticks, Soul Torch: 60 ticks)
+   * String Test
    */
-  torchFireEffects: {'minecraft:torch': 40, 'minecraft:soul_torch': 60, 'minecraft:redstone_torch': 40, 'custom_namespace:custom_torch': 40},
+  configOption6: {
+		"selection": []
+	},
+  /**
+   * String Test
+   */
+  configOption7: {
+		"minecraft:torch": 40,
+		"minecraft:soul_torch": 60,
+		"minecraft:redstone_torch": 40,
+		"custom_namespace:custom_torch": 40
+	},
 };
 
 // version (do not change)

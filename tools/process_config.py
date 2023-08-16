@@ -31,6 +31,7 @@ def compute_hash(filename):
     return file_hash.hexdigest()
 
 def generateScript(isServer):
+    indent = "\t" * 2
     result = ''
     if isServer:
         result += 'import { variables } from "@minecraft/server-admin";\n\n'
@@ -43,16 +44,24 @@ def generateScript(isServer):
             result += f'  {name}: variables.get("{name}"),\n'
         else:
             value = data["default"]
-
             if type(value) is str:
                 value = f'"{value}"'
             elif type(value) is bool:
                 value = "true" if value else "false"
+            elif data['type'] == "range":
+                value = f'{{\n{indent}"from": {value["from"]},\n{indent}"to": {value["to"]}\n\t}}'
+            elif data["type"] == "customizableArray":
+                value = '[]'
+            elif data["type"] == "selectionArray":
+                value = "{" + f'\n{indent}"selection": []\n\t' + "}"
+            elif data['type'] == "customizableMap":
+                entries = ', '.join([f'"{key}": {value}' for key, value in value.items()])
+                value = '{\n' + indent + entries.replace(', ', f',\n{indent}') + '\n\t}'
 
-            result += '  /**\n'
+            result += f'  /**\n'
             for line in data['description'].splitlines():
                 result += f'   * {line}\n'
-            result += '   */\n'
+            result += f'   */\n'
             result += f'  {name}: {value},\n'
 
             # Generate language file entries
@@ -109,7 +118,6 @@ def generateScript(isServer):
         lang_file.write(modified_lang_content)
 
     return result
-
 
 def generateVariables():
     result = []

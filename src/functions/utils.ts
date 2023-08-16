@@ -1,28 +1,28 @@
 import { Block, Player, system } from "@minecraft/server";
-import {includeCustomTorch, excludeCustomTorch} from "../packages";
 import { ActionFormData, ActionFormResponse, FormCancelationReason, ModalFormData, ModalFormResponse } from "@minecraft/server-ui";
+// import {includeCustomTorch, excludeCustomTorch} from "../packages";
 
-function isTorchIncluded(blockID: string): boolean {
-  const currentPatterns: string[] = [
-    '^[\\w\\-]+:(?:[\\w_]+_)?torch$'
-  ];
+// function isTorchIncluded(blockID: string): boolean {
+//   const currentPatterns: string[] = [
+//     '^[\\w\\-]+:(?:[\\w_]+_)?torch$'
+//   ];
 
-  const excludeRegexes: RegExp[] = excludeCustomTorch.map((excluded: string) => new RegExp(excluded));
+//   const excludeRegexes: RegExp[] = excludeCustomTorch.map((excluded: string) => new RegExp(excluded));
   
-  const isExcluded: boolean = excludeRegexes.some((regex: RegExp) => regex.test(blockID));
-  if (isExcluded) {
-    return false;
-  }
+//   const isExcluded: boolean = excludeRegexes.some((regex: RegExp) => regex.test(blockID));
+//   if (isExcluded) {
+//     return false;
+//   }
 
-  let patterns: string[]  = [...currentPatterns, ...includeCustomTorch];
-  const combinedPattern = new RegExp(patterns.join('|'));
-  return combinedPattern.test(blockID);
-}
+//   let patterns: string[]  = [...currentPatterns, ...includeCustomTorch];
+//   const combinedPattern = new RegExp(patterns.join('|'));
+//   return combinedPattern.test(blockID);
+// }
 
-function forceSetPermutation(_block: Block, flag: boolean, state: string = "lit"){
-  const perm = _block.permutation.withState(state, !flag);
-  system.run(() => _block.setPermutation(perm));
-}
+// function forceSetPermutation(_block: Block, flag: boolean, state: string = "lit"){
+//   const perm = _block.permutation.withState(state, !flag);
+//   system.run(() => _block.setPermutation(perm));
+// }
 
 async function forceShow(player: Player, form: ActionFormData | ModalFormData, timeout: number = Infinity): Promise<ActionFormResponse | ModalFormResponse> {
     // Script example for ScriptAPI
@@ -39,4 +39,8 @@ async function forceShow(player: Player, form: ActionFormData | ModalFormData, t
     throw new Error(`Timed out after ${timeout} ticks`);
 };
 
-export {isTorchIncluded, forceSetPermutation, forceShow};
+export {
+  // isTorchIncluded, 
+  // forceSetPermutation, 
+  forceShow
+};
