@@ -30,7 +30,7 @@
   "configOption6": {
     "description": "String Test",
     "type": "selectionArray",
-    "default": ["ON", "OFF", "AUTO"]
+    "default": []
   },
   "configOption7": {
     "description": "String Test",

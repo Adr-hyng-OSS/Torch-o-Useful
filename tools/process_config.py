@@ -51,11 +51,26 @@ def generateScript(isServer):
             elif data['type'] == "range":
                 value = f'{{\n{indent}"from": {value["from"]},\n{indent}"to": {value["to"]}\n\t}}'
             elif data["type"] == "customizableArray":
-                value = '[]'
+                value = "[" + ", ".join([f'"{x}"' if isinstance(x, str) else ("true" if x else "false") if isinstance(x, bool) else str(x) for x in value]) + "]"
             elif data["type"] == "selectionArray":
-                value = "{" + f'\n{indent}"selection": []\n\t' + "}"
+                new_value = "[" + ", ".join([f'"{x}"' if isinstance(x, str) else ("true" if x else "false") if isinstance(x, bool) else str(x) for x in value]) + "]"
+                value = "{" + f'\n{indent}"selection": {new_value}\n\t' + "}"
             elif data['type'] == "customizableMap":
-                entries = ', '.join([f'"{key}": {value}' for key, value in value.items()])
+                if type(value) is str:
+                    value = f'"{value}"'
+                elif type(value) is bool:
+                    value = "true" if value else "false"
+                    
+                entries_list = []
+                for key, value in value.items():
+                    if isinstance(value, str):
+                        formatted_value = f'"{value}"'
+                    elif isinstance(value, bool):
+                        formatted_value = "true" if value else "false"
+                    else:
+                        formatted_value = str(value)
+                    entries_list.append(f'"{key}": {formatted_value}')
+                entries = ', '.join(entries_list)
                 value = '{\n' + indent + entries.replace(', ', f',\n{indent}') + '\n\t}'
 
             result += f'  /**\n'
