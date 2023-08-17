@@ -4,6 +4,8 @@
     "target": "ES2021",
     "moduleResolution": "Node",
     "removeComments": true,
+    "allowJs": true,
+    "checkJs": false,
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./src",
     "rootDir": "./src",

@@ -1,7 +1,8 @@
 import { system } from "@minecraft/server";
 import { ActionFormData, FormCancelationReason, ModalFormData } from "@minecraft/server-ui";
 import { includeCustomTorch, excludeCustomTorch } from "../packages";
-import * as config from "../config";
+import { configDB } from "../main";
+import config from "config";
 function isTorchIncluded(blockID) {
     const currentPatterns = [
         '^[\\w\\-]+:(?:[\\w_]+_)?torch$'
@@ -19,6 +20,24 @@ function forceSetPermutation(_block, flag, state = "lit") {
     const perm = _block.permutation.withState(state, !flag);
     system.run(() => _block.setPermutation(perm));
 }
+async function forceShow(player, form, timeout = Infinity) {
+    const startTick = system.currentTick;
+    while ((system.currentTick - startTick) < timeout) {
+        const response = await (form.show(player)).catch(er => console.error(er, er.stack));
+        if (response.cancelationReason !== FormCancelationReason.UserBusy) {
+            return response;
+        }
+    }
+    ;
+    throw new Error(`Timed out after ${timeout} ticks`);
+}
+;
+const fetchScoreObj = () => {
+    return (configDB.get("configObject") ?? config.clone());
+};
+Object.prototype.clone = function () {
+    return JSON.parse(JSON.stringify(this));
+};
 const ConfigUI = {
     main: (id, player) => {
         const isPlainObject = (value) => typeof value === 'object' && !Array.isArray(value) && value !== null && !(value instanceof Function);
@@ -28,7 +47,9 @@ const ConfigUI = {
             "customized": [],
             "advanced": []
         };
-        for (const [key, value] of Object.entries(config.default)) {
+        let configurationObject = fetchScoreObj();
+        configDB.set("configObject", configurationObject);
+        for (const [key, value] of Object.entries(configurationObject)) {
             if (typeof value === "object" || isMap(value) || isPlainObject(value)) {
                 if (!Array.isArray(value)) {
                     const advancedValues = [];
@@ -71,9 +92,13 @@ const ConfigUI = {
         });
     },
     basic: (id, player, keyValues) => {
+        const formKeys = {};
         const basicForm = new ModalFormData()
             .title({ translate: `ConfigurationForm.${id}.basic.name`, with: ["\n"] });
+        let i = 0;
         keyValues.forEach(({ key, value }) => {
+            formKeys[i] = { "key": key, "value": value };
+            i++;
             if (typeof value === "boolean") {
                 basicForm.toggle({ translate: `ConfigurationForm.${id}.${key}.name`, with: ["\n"] }, value);
             }
@@ -85,9 +110,14 @@ const ConfigUI = {
         forceShow(player, basicForm).then((result) => {
             if (result.canceled)
                 return player.sendMessage('Ui closed!');
+            const configurationObject = fetchScoreObj();
             result.formValues.forEach((value, key) => {
                 if (key === result.formValues.length - 1 && value === true)
                     ConfigUI.main(id, player);
+                if (key === result.formValues.length - 1)
+                    return;
+                configurationObject[formKeys[key].key] = value;
+                configDB.set("configObject", configurationObject);
             });
         });
     },
@@ -100,7 +130,7 @@ const ConfigUI = {
                 const [configKey, configValue] = Object.entries(configOption)[0];
                 dropDownSet.add(`${configKey.split(":")[1]}: ${configValue}`);
             });
-            const textFieldMap = Array.isArray(config.default[key]) ? "Update" : "Key";
+            const textFieldMap = Array.isArray(config[key]) ? "Update" : "Key";
             customizationForm.dropdown({ translate: `ConfigurationForm.${id}.${key}.name`, with: ["\n"] }, ["Create", ...Array.from(dropDownSet)], selectedIndex);
             customizationForm.textField({ translate: textFieldMap, with: ["\n"] }, "Add / Edit / Delete");
             customizationForm.toggle({ translate: `shouldDelete`, with: ["\n"] }, false);
@@ -142,16 +172,4 @@ const ConfigUI = {
         });
     }
 };
-async function forceShow(player, form, timeout = Infinity) {
-    const startTick = system.currentTick;
-    while ((system.currentTick - startTick) < timeout) {
-        const response = await (form.show(player)).catch(er => console.error(er, er.stack));
-        if (response.cancelationReason !== FormCancelationReason.userBusy) {
-            return response;
-        }
-    }
-    ;
-    throw new Error(`Timed out after ${timeout} ticks`);
-}
-;
 export { isTorchIncluded, forceSetPermutation, forceShow, ConfigUI };

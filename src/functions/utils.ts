@@ -1,8 +1,8 @@
 import { Block, Player, system } from "@minecraft/server";
 import { ActionFormData, ActionFormResponse, FormCancelationReason, ModalFormData, ModalFormResponse } from "@minecraft/server-ui";
-import {includeCustomTorch, excludeCustomTorch} from "../packages";
-
-import * as config from "../config";
+import {includeCustomTorch, excludeCustomTorch, Logger} from "../packages";
+import { configDB } from "../main";
+import config from "config";
 
 function isTorchIncluded(blockID: string): boolean {
   const currentPatterns: string[] = [
@@ -26,6 +26,29 @@ function forceSetPermutation(_block: Block, flag: boolean, state: string = "lit"
   system.run(() => _block.setPermutation(perm));
 }
 
+async function forceShow(player: Player, form: ActionFormData | ModalFormData, timeout: number = Infinity): Promise<ActionFormResponse | ModalFormResponse> {
+    // Script example for ScriptAPI
+    // Author: Jayly#1397 <Jayly Discord>
+    //         Worldwidebrine#9037 <Bedrock Add-Ons>
+    // Project: https://github.com/JaylyDev/ScriptAPI
+    const startTick: number = system.currentTick;
+    while ((system.currentTick - startTick) < timeout) {
+        const response: ActionFormResponse | ModalFormResponse = await (form.show(player)).catch(er=>console.error(er,er.stack)) as ActionFormResponse | ModalFormResponse;
+        if (response.cancelationReason !== FormCancelationReason.UserBusy) {
+            return response;
+        }
+    };
+    throw new Error(`Timed out after ${timeout} ticks`);
+};
+
+const fetchScoreObj = () => {
+	return (configDB.get("configObject") ?? (config as Object).clone());
+}
+
+Object.prototype.clone = function(this: any): any {
+	return JSON.parse(JSON.stringify(this));
+};
+
 const ConfigUI = {
   main: (id: string, player: Player) => {
 		const isPlainObject = (value: any) => typeof value === 'object' && !Array.isArray(value) && value !== null && !(value instanceof Function);
@@ -36,7 +59,10 @@ const ConfigUI = {
 			"advanced": []
 		}
 
-		for (const [key, value] of Object.entries(config.default)) {
+		let configurationObject = fetchScoreObj();
+		configDB.set("configObject", configurationObject);
+
+		for (const [key, value] of Object.entries(configurationObject)) {
 			if (typeof value === "object" || isMap(value) || isPlainObject(value)) {
 				if (!Array.isArray(value)) {
 					const advancedValues = [];
@@ -72,27 +98,41 @@ const ConfigUI = {
 		})
   },
   basic: (id: string, player: Player, keyValues: any[]) => {
-			const basicForm = new ModalFormData()
-			.title({translate: `ConfigurationForm.${id}.basic.name`, with: ["\n"]});
+		const formKeys = {};
+		const basicForm = new ModalFormData()
+		.title({translate: `ConfigurationForm.${id}.basic.name`, with: ["\n"]});
 
-			// This is for: Boolean, String, Number.
-			keyValues.forEach(({key, value}) => {
-				if(typeof value === "boolean") {
-					basicForm.toggle({translate: `ConfigurationForm.${id}.${key}.name`, with: ["\n"]}, value);
-				}
-				else {
-					basicForm.textField({translate: `ConfigurationForm.${id}.${key}.name`, with: ["\n"]}, value + "");
-				}
-			});
+		let i = 0;
+		// This is for: Boolean, String, Number.
+		keyValues.forEach(({key, value}) => {
+			formKeys[i] = {"key": key, "value": value};
+			i++;
+			if(typeof value === "boolean") {
+				basicForm.toggle({translate: `ConfigurationForm.${id}.${key}.name`, with: ["\n"]}, value);
+			}
+			else {
+				basicForm.textField({translate: `ConfigurationForm.${id}.${key}.name`, with: ["\n"]}, value + "");
+			}
+		});
 
-			basicForm.toggle({translate: `ConfigurationForm.${id}.misc.back.text`, with: ["\n"]}, false);
-			
-      forceShow(player, basicForm).then((result: ModalFormResponse) => {
-          if (result.canceled) return player.sendMessage('Ui closed!');
-					result.formValues.forEach((value, key) => {
-						if (key === result.formValues.length - 1 && value === true) ConfigUI.main(id, player);
-					});
-      });
+		basicForm.toggle({translate: `ConfigurationForm.${id}.misc.back.text`, with: ["\n"]}, false);
+		
+		forceShow(player, basicForm).then((result: ModalFormResponse) => {
+				if (result.canceled) return player.sendMessage('Ui closed!');
+				const configurationObject = fetchScoreObj();
+				result.formValues.forEach((value, key) => {
+					if (key === result.formValues.length - 1 && value === true) ConfigUI.main(id, player);
+					if(key === result.formValues.length - 1) return;
+					// This fetches the object into string
+
+					// Now i want to set the object's property, and value, then save it by converting it back to
+					// string, and set it.
+					configurationObject[formKeys[key].key] = value;
+
+					// This sets the object back to the database.
+					configDB.set("configObject", configurationObject);
+				});
+		});
   },
   customize: (id: string, player: Player, keyValues: any[]) => {
 		let selectedIndex = 0;
@@ -104,7 +144,7 @@ const ConfigUI = {
 				const [configKey, configValue] = Object.entries(configOption)[0];
 				dropDownSet.add(`${configKey.split(":")[1]}: ${configValue}`);
 			});
-			const textFieldMap = Array.isArray(config.default[key]) ? "Update" : "Key";
+			const textFieldMap = Array.isArray(config[key]) ? "Update" : "Key";
 			customizationForm.dropdown({translate: `ConfigurationForm.${id}.${key}.name`, with: ["\n"]}, ["Create", ...Array.from(dropDownSet)], selectedIndex);
 			customizationForm.textField({translate: textFieldMap, with: ["\n"]}, "Add / Edit / Delete");
 			customizationForm.toggle({translate: `shouldDelete`, with: ["\n"]}, false);
@@ -146,24 +186,9 @@ const ConfigUI = {
 	}
 };
 
-async function forceShow(player: Player, form: ActionFormData | ModalFormData, timeout: number = Infinity): Promise<ActionFormResponse | ModalFormResponse> {
-    // Script example for ScriptAPI
-    // Author: Jayly#1397 <Jayly Discord>
-    //         Worldwidebrine#9037 <Bedrock Add-Ons>
-    // Project: https://github.com/JaylyDev/ScriptAPI
-    const startTick: number = system.currentTick;
-    while ((system.currentTick - startTick) < timeout) {
-        const response: ActionFormResponse | ModalFormResponse = await (form.show(player)).catch(er=>console.error(er,er.stack)) as ActionFormResponse | ModalFormResponse;
-        if (response.cancelationReason !== FormCancelationReason.userBusy) {
-            return response;
-        }
-    };
-    throw new Error(`Timed out after ${timeout} ticks`);
-};
-
 export {
   isTorchIncluded, 
   forceSetPermutation, 
   forceShow,
-  ConfigUI
+	ConfigUI
 };
