@@ -13,6 +13,15 @@ export * from "./database";
 export * from "./events/onHurt";
 export * from "./events/onInteract";
 
+//? Possible types: 
+//   - string
+//   - boolean
+//   - number
+//   - range
+//   - customizableArray
+//   - selectionArray
+//   - customizableMap
+
 const {
     debug,
     igniteTNT,

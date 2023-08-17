@@ -47,6 +47,19 @@ export default {
 		"minecraft:redstone_torch": 40,
 		"custom_namespace:custom_torch": 40
 	},
+  /**
+   * Range Test
+   */
+  rangeTest: {
+		"from": 1,
+		"to": 10
+	},
+  /**
+   * Range Test
+   */
+  selectionTest: {
+		"selection": ["OPTION 1", "OPTION 2"]
+	},
 };
 
 // version (do not change)

@@ -41,13 +41,19 @@ async function forceShow(player: Player, form: ActionFormData | ModalFormData, t
     throw new Error(`Timed out after ${timeout} ticks`);
 };
 
-const fetchScoreObj = () => {
-	return (configDB.get("configObject") ?? (config as Object).clone());
-}
 
 Object.prototype.clone = function(this: any): any {
 	return JSON.parse(JSON.stringify(this));
 };
+
+const fetchScoreObj = (playerID: string) => {
+	const privateConfig = (config as Object).clone();
+  return configDB.get(configDBSchema(playerID)) ?? privateConfig;
+};
+
+const configDBSchema = (playerID: string) => {
+	return `${playerID}_configObject`;
+}
 
 const ConfigUI = {
   main: (id: string, player: Player) => {
@@ -59,8 +65,8 @@ const ConfigUI = {
 			"advanced": []
 		}
 
-		let configurationObject = fetchScoreObj();
-		configDB.set("configObject", configurationObject);
+		let configurationObject = fetchScoreObj(player.id);
+		configDB.set(configDBSchema(player.id), configurationObject);
 
 		for (const [key, value] of Object.entries(configurationObject)) {
 			if (typeof value === "object" || isMap(value) || isPlainObject(value)) {
@@ -99,10 +105,10 @@ const ConfigUI = {
   },
   basic: (id: string, player: Player, keyValues: any[]) => {
 		const formKeys = {};
+		let i = 0;
 		const basicForm = new ModalFormData()
 		.title({translate: `ConfigurationForm.${id}.basic.name`, with: ["\n"]});
 
-		let i = 0;
 		// This is for: Boolean, String, Number.
 		keyValues.forEach(({key, value}) => {
 			formKeys[i] = {"key": key, "value": value};
@@ -119,18 +125,12 @@ const ConfigUI = {
 		
 		forceShow(player, basicForm).then((result: ModalFormResponse) => {
 				if (result.canceled) return player.sendMessage('Ui closed!');
-				const configurationObject = fetchScoreObj();
+				const configurationObject = fetchScoreObj(player.id);
 				result.formValues.forEach((value, key) => {
 					if (key === result.formValues.length - 1 && value === true) ConfigUI.main(id, player);
 					if(key === result.formValues.length - 1) return;
-					// This fetches the object into string
-
-					// Now i want to set the object's property, and value, then save it by converting it back to
-					// string, and set it.
 					configurationObject[formKeys[key].key] = value;
-
-					// This sets the object back to the database.
-					configDB.set("configObject", configurationObject);
+					configDB.set(configDBSchema(player.id), configurationObject);
 				});
 		});
   },
@@ -159,19 +159,55 @@ const ConfigUI = {
 		});
 	},
 	advanced: (id: string, player: Player, keyValues: any[]) => {
-		let selectedIndex = 0;
+		const formKeys = {};
+		let i = 0;
+		enum UnknownValues {
+			Selection = "selectionIndex",
+			Slide = "current"
+		}
 		const advancedForm = new ModalFormData();
 
+		const configurationObject = fetchScoreObj(player.id);
 		keyValues.forEach(({key, value}) => {
+			formKeys[i] = {"key": key, "value": value};
+			i++;
 			if(Array.isArray(value)) {
 				let selection: string[];
+				let selectionIndex: number | null;
+
+				// Assign the value directly using destructuring assignment
 				selection = value[0]["selection"];
-				if (!selection.length) return;
+
+				// Check if any object in the array has the key "selectionIndex"
+				const hasSelectionIndex = value.some(obj => obj.hasOwnProperty(UnknownValues.Selection));
+
+				if (hasSelectionIndex) {
+					const objWithSelectionIndex = value.find(obj => obj.hasOwnProperty(UnknownValues.Selection));
+					selectionIndex = objWithSelectionIndex[UnknownValues.Selection];
+				} else {
+					configurationObject[key][UnknownValues.Selection] = configurationObject[key][UnknownValues.Selection] ?? 0;
+					selectionIndex = configurationObject[key][UnknownValues.Selection];
+				}
+
+				if (!selection.length) {
+					return;
+				}
+
 				selection = ["Choose", ...selection];
-				advancedForm.dropdown({translate: `ConfigurationForm.${id}.${key}.name`, with: ["\n"]}, selection, selectedIndex);
+				advancedForm.dropdown({ translate: `ConfigurationForm.${id}.${key}.name`, with: ["\n"] }, selection, selectionIndex);
 			}
 			else {
-				advancedForm.slider({translate: `ConfigurationForm.${id}.${key}.name`, with: ["\n"]}, value.from, value.to, 1, Math.round((value.from + value.to) / 2));
+				const hasLoadedSlide = value.hasOwnProperty(UnknownValues.Slide);
+				let currentSlide: number | null;
+
+				if (hasLoadedSlide) {
+					currentSlide = value[UnknownValues.Slide];
+				} else {
+					configurationObject[key][UnknownValues.Slide] = configurationObject[key][UnknownValues.Slide] ?? Math.round((value.from + value.to) / 2);
+					currentSlide = configurationObject[key][UnknownValues.Slide];
+				}
+
+				advancedForm.slider({ translate: `ConfigurationForm.${id}.${key}.name`, with: ["\n"] }, value.from, value.to, 1, currentSlide);
 			}
 		});
 
@@ -181,6 +217,15 @@ const ConfigUI = {
 			if (result.canceled) return player.sendMessage('Ui closed!');
 			result.formValues.forEach((value, key) => {
 				if (key === result.formValues.length - 1 && value === true) ConfigUI.main(id, player);
+				if(key === result.formValues.length - 1) return;
+				const formValues = configurationObject[formKeys[key].key];
+				if(formValues.hasOwnProperty("selection")) {
+					formValues[UnknownValues.Selection] = value;
+				}
+				else {
+					formValues[UnknownValues.Slide] = value;
+				}
+				configDB.set(configDBSchema(player.id), configurationObject);
 			});
 		});
 	}
