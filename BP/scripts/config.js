@@ -8,6 +8,7 @@ export default {
    */
   igniteTNT: false,
   /**
+   * (Supports Regex) 
    * This makes custom torches that doesn't endswith: 
    * .*_torch or .*torch 
    * be included too.
@@ -19,15 +20,16 @@ export default {
    *  - any_custom:torch
    *  - any:_torch
    */
-  includeCustomTorch: [],
+  includeCustomTorch: ["minecraft:soul_torch"],
   /**
+   * (Supports Regex) 
    * List of Custom or Vanilla torches to exclude.
    * Example: 
    *  - minecraft:soul_torch
    *  - .*_torch
    *  - any_custom:torch
    */
-  excludeCustomTorch: [],
+  excludeCustomTorch: ["minecraft:torch"],
   /**
    * Prioritize mainhand over offhand. If false, it will prioritize offhand over mainhand. 
    * (Only works for Hitting Entity)

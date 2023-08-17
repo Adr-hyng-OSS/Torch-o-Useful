@@ -114,27 +114,45 @@ const ConfigUI = {
         forceShow(player, basicForm).then((result) => {
             if (result.canceled)
                 return player.sendMessage('Ui closed!');
+            const length = result.formValues.length;
+            const shouldBack = result.formValues[length - 1] === true;
             const configurationObject = fetchScoreObj(player.id);
-            result.formValues.forEach((value, key) => {
-                if (key === result.formValues.length - 1 && value === true)
-                    ConfigUI.main(id, player);
-                if (key === result.formValues.length - 1)
+            result.formValues.forEach((value, formIndex) => {
+                const isLastElement = formIndex === length - 1;
+                if (isLastElement && shouldBack)
+                    return ConfigUI.main(id, player);
+                if (isLastElement)
                     return;
-                configurationObject[formKeys[key].key] = value;
+                configurationObject[formKeys[formIndex].key] = value;
                 configDB.set(configDBSchema(player.id), configurationObject);
             });
         });
     },
     customize: (id, player, keyValues) => {
+        const formKeys = {};
+        let i = 0;
         let selectedIndex = 0;
         const customizationForm = new ModalFormData();
+        const configurationObject = fetchScoreObj(player.id);
         keyValues.forEach(({ key, value }) => {
+            formKeys[i] = { "key": key, "value": value, "dropdown": [] };
+            i += 3;
             const dropDownSet = new Set();
-            value.forEach((configOption) => {
-                const [configKey, configValue] = Object.entries(configOption)[0];
-                dropDownSet.add(`${configKey.split(":")[1]}: ${configValue}`);
-            });
-            const textFieldMap = Array.isArray(config[key]) ? "Update" : "Key";
+            const isArray = Array.isArray(config[key]);
+            if (isArray) {
+                value.forEach((configOption) => {
+                    dropDownSet.add(configOption);
+                });
+            }
+            else {
+                value.forEach((configOption) => {
+                    const [configKey, configValue] = Object.entries(configOption)[0];
+                    const entry = `${configKey}: ${configValue}`;
+                    dropDownSet.add(entry);
+                    formKeys[i - 3] = { "key": key, "value": value, "dropdown": [...formKeys[i - 3].dropdown, entry] };
+                });
+            }
+            const textFieldMap = isArray ? "Update" : "Key";
             customizationForm.dropdown({ translate: `ConfigurationForm.${id}.${key}.name`, with: ["\n"] }, ["Create", ...Array.from(dropDownSet)], selectedIndex);
             customizationForm.textField({ translate: textFieldMap, with: ["\n"] }, "Add / Edit / Delete");
             customizationForm.toggle({ translate: `shouldDelete`, with: ["\n"] }, false);
@@ -143,9 +161,40 @@ const ConfigUI = {
         forceShow(player, customizationForm).then((result) => {
             if (result.canceled)
                 return player.sendMessage('Ui closed!');
-            result.formValues.forEach((value, key) => {
-                if (key === result.formValues.length - 1 && value === true)
-                    ConfigUI.main(id, player);
+            const length = result.formValues.length;
+            const shouldBack = result.formValues[length - 1] === true;
+            result.formValues.forEach((value, formIndex) => {
+                const isLastElement = formIndex === length - 1;
+                if (isLastElement && shouldBack)
+                    return ConfigUI.main(id, player);
+                if (isLastElement)
+                    return;
+                const formValues = configurationObject[formKeys[formIndex]?.key];
+                if (formIndex % 3 === 0) {
+                    if (value === 0) {
+                        if (result.formValues[formIndex + 1] !== "") {
+                            let modifiedEntry;
+                            if (Array.isArray(formValues)) {
+                                formValues.push(result.formValues[formIndex + 1] + "");
+                            }
+                            else {
+                                const [namespace, ...rest] = (result.formValues[formIndex + 1] + "").split(":");
+                                const newKey = `${namespace}:${rest[0].trim()}`;
+                                const newValue = rest[1] ? rest[1].trim() : '';
+                                let modifiedValue;
+                                if (newValue === "true" || newValue === "false") {
+                                    modifiedValue = newValue === "true";
+                                }
+                                else if (!isNaN(Number(newValue))) {
+                                    modifiedValue = Number(newValue);
+                                }
+                                modifiedEntry = { key: newKey, value: modifiedValue };
+                                formValues[modifiedEntry.key] = modifiedEntry.value;
+                            }
+                        }
+                    }
+                }
+                configDB.set(configDBSchema(player.id), configurationObject);
             });
         });
     },
@@ -198,12 +247,15 @@ const ConfigUI = {
         forceShow(player, advancedForm).then((result) => {
             if (result.canceled)
                 return player.sendMessage('Ui closed!');
-            result.formValues.forEach((value, key) => {
-                if (key === result.formValues.length - 1 && value === true)
-                    ConfigUI.main(id, player);
-                if (key === result.formValues.length - 1)
+            const length = result.formValues.length;
+            const shouldBack = result.formValues[length - 1] === true;
+            result.formValues.forEach((value, formIndex) => {
+                const isLastElement = formIndex === length - 1;
+                if (isLastElement && shouldBack)
+                    return ConfigUI.main(id, player);
+                if (isLastElement)
                     return;
-                const formValues = configurationObject[formKeys[key].key];
+                const formValues = configurationObject[formKeys[formIndex].key];
                 if (formValues.hasOwnProperty("selection")) {
                     formValues[UnknownValues.Selection] = value;
                 }
