@@ -190,53 +190,74 @@ const ConfigUI = {
 				// This is an indicator that the formIndex is a dropdown or contains an array or object, which is also
 				// A dropdown component.
 				if(formIndex % 3 === 0) {
+					let modifiedEntry: { key: string; value: any };
 					// Create new one.
 					// When the dropdown's index is 0 or the top most index, which has a value of "Create".
 					value = value as number;
-					if(value === 0) {
+					if(value === 0 && result.formValues[formIndex + 2] === false) {
 						if(result.formValues[formIndex + 1] !== "") {
-							let modifiedEntry: { key: string; value: any };
 							if(Array.isArray(formValues)) {
 								formValues.push(result.formValues[formIndex + 1] + "");
 							} 
 							// For Map / Object
 							else {
+								// Getting the namespace and the value: minecraft:torch: 120.
 								const [namespace, ...rest] = (result.formValues[formIndex + 1] + "").split(":");
 								const newKey = `${namespace}:${rest[0].trim()}`;
 								const newValue = rest[1] ? rest[1].trim() : '';
 
+								// Formmating the newValue to boolean or number.
 								let modifiedValue: boolean | number | string;
 								if (newValue === "true" || newValue === "false") {
 									modifiedValue = newValue === "true";
 								} else if (!isNaN(Number(newValue))) {
 									modifiedValue = Number(newValue);
 								}
+								
+								// Assigning the new key and value to the modifiedEntry object.
 								modifiedEntry = {key: newKey, value: modifiedValue};
-								formValues[modifiedEntry.key] = modifiedEntry.value;
+
+								// It should check first if it has similar key in the object, if it has, then don't add it. just ignore.
+								// If it doesn't have, then add it.
+								if(!formValues.hasOwnProperty(modifiedEntry.key)) {
+									formValues[modifiedEntry.key] = modifiedEntry.value;
+								}
 							}
 						}
 					}
 					// Edit existing one.
 					else if(value !== 0) {
 						if(Array.isArray(formValues)) {
+							value = value !== 0 ? value - 1 : value;
 							// If shouldDelete toggle is on, then delete the current selected element
 							// Even if the textField has or has not have a value.
 							if (result.formValues[formIndex + 2] === true) {
-								value = value !== 0 ? value - 1 : value;
 								formValues.splice(value, 1);
 							}
 							// If text field is not empty, then edit the dropdown's value.
 							if(result.formValues[formIndex + 1] !== "") {
 								// If the shouldDelete toggle is off, then edit the dropdown's value.
 								if(result.formValues[formIndex + 2] === false) {
-									value = value !== 0 ? value - 1 : value;
 									formValues[value] = result.formValues[formIndex + 1] + "";
 								} 
 							}
 						}
 
 						else {
-							Logger.warn("No code yet");
+							// If shouldDelete toggle is on, then delete the current selected element
+							if (result.formValues[formIndex + 2] === true) {
+								value = value !== 0 ? value - 1 : value;
+								const fetchedKey = Object.keys(formKeys[formIndex]?.value[value])[0];
+								delete formValues[fetchedKey];
+							}
+							// Editting, if it has the key, and the shouldDelete toggle is off.
+							if(result.formValues[formIndex + 1] !== "" && result.formValues[formIndex + 2] === false) {
+								value = value !== 0 ? value - 1 : value;
+								const fetchedKey = Object.keys(formKeys[formIndex]?.value[value])[0];
+								if(formValues.hasOwnProperty(fetchedKey)) {
+									formValues[fetchedKey] = result.formValues[formIndex + 1] + "";
+								}
+							}
 						}
 					}
 				}
