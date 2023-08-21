@@ -1,5 +1,6 @@
 import { world, Player, EntityEquipmentInventoryComponent, EquipmentSlot, EntityInventoryComponent, system, MinecraftBlockTypes, Container } from "@minecraft/server";
-import { isTorchIncluded, Compare, igniteTNT, forceSetPermutation, consumeTorchOnLit } from "../packages";
+import { isTorchIncluded, Compare, forceSetPermutation, fetchScoreObj, configDBSchema } from "../packages";
+import { configDB } from "main";
 
 const logMap: Map<string, number> = new Map<string, number>();
 
@@ -46,6 +47,9 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 	// For executing the onPlaceBlock event once.
 	let justExecuted = false;
 
+	// Config through DB.
+	let config = fetchScoreObj(player.id); configDB.set(configDBSchema(player.id), config);
+
 	//* This block handles, when you are holding a placeable items like:
 	//* such as ladders, torches, blocks, etc.
 	//* So, whenever that happens, then set that to air.
@@ -72,7 +76,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 		// If the source who placed a block in the world, is not the same as the player who interacted with the block in the first place, then return.
 		if(!Compare.types.isEqual(blockPlacePlayer?.id, player?.id)) return;
 
-		if(_block.type === MinecraftBlockTypes.tnt && !igniteTNT) return;
+		if(_block.type === MinecraftBlockTypes.tnt && !config.igniteTNT) return;
 
 		// cancel the blockplacement.
 		blockPlaced.setType(MinecraftBlockTypes.air);
@@ -102,7 +106,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 				forceSetPermutation(_block, flag, "extinguished");
 				break;
 			}
-			if(key === "explode_bit" && value === false && igniteTNT) {
+			if(key === "explode_bit" && value === false && config.igniteTNT) {
 				_block.setType(MinecraftBlockTypes.air);
 				blockPlacePlayer.dimension.spawnEntity("minecraft:tnt", _block.location);
 				break;
@@ -123,7 +127,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 	//* Also, It will automatically extinguish the campfire, if you are holding
 	//* a shovel, and you are interacting it too fast, wait for the timer.
 	if(justExecuted) return;
-	if(consumeTorchOnLit) inventory.clearItem(torchHand.item.typeId, 1);	
+	if(config.consumeTorchOnLit) inventory.clearItem(torchHand.item.typeId, 1);	
 	for (const [key, value] of Object.entries(permutations)) {
 		if(key === "lit" && value === false) {
 			const flag: boolean = value as boolean;
@@ -135,7 +139,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 			forceSetPermutation(_block, flag, "extinguished");
 			break;
 		}
-		if(key === "explode_bit" && value === false && igniteTNT) {
+		if(key === "explode_bit" && value === false && config.igniteTNT) {
 			_block.setType(MinecraftBlockTypes.air);
 			player.dimension.spawnEntity("minecraft:tnt", _block.location);
 			justExecuted = true;

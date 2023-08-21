@@ -35,11 +35,11 @@ async function forceShow(player, form, timeout = Infinity) {
 Object.prototype.clone = function () {
     return JSON.parse(JSON.stringify(this));
 };
-const fetchScoreObj = (playerID) => {
+export const fetchScoreObj = (playerID) => {
     const privateConfig = config.clone();
     return configDB.get(configDBSchema(playerID)) ?? privateConfig;
 };
-const configDBSchema = (playerID) => {
+export const configDBSchema = (playerID) => {
     return `${playerID}_configObject`;
 };
 const ConfigUI = {
@@ -132,7 +132,8 @@ const ConfigUI = {
         const formKeys = {};
         let i = 0;
         let selectedIndex = 0;
-        const customizationForm = new ModalFormData();
+        const customizationForm = new ModalFormData()
+            .title({ translate: `ConfigurationForm.${id}.listOptions.name`, with: ["\n"] });
         const configurationObject = fetchScoreObj(player.id);
         keyValues.forEach(({ key, value }) => {
             formKeys[i] = { "key": key, "value": value, "dropdown": [] };
@@ -218,7 +219,15 @@ const ConfigUI = {
                                 value = value !== 0 ? value - 1 : value;
                                 const fetchedKey = Object.keys(formKeys[formIndex]?.value[value])[0];
                                 if (formValues.hasOwnProperty(fetchedKey)) {
-                                    formValues[fetchedKey] = result.formValues[formIndex + 1] + "";
+                                    const newValue = result.formValues[formIndex + 1] + "";
+                                    let modifiedValue;
+                                    if (newValue === "true" || newValue === "false") {
+                                        modifiedValue = newValue === "true";
+                                    }
+                                    else if (!isNaN(Number(newValue))) {
+                                        modifiedValue = Number(newValue);
+                                    }
+                                    formValues[fetchedKey] = modifiedValue;
                                 }
                             }
                         }
@@ -236,7 +245,8 @@ const ConfigUI = {
             UnknownValues["Selection"] = "selectionIndex";
             UnknownValues["Slide"] = "current";
         })(UnknownValues || (UnknownValues = {}));
-        const advancedForm = new ModalFormData();
+        const advancedForm = new ModalFormData()
+            .title({ translate: `ConfigurationForm.${id}.dictionaryOptions.name`, with: ["\n"] });
         const configurationObject = fetchScoreObj(player.id);
         keyValues.forEach(({ key, value }) => {
             formKeys[i] = { "key": key, "value": value };
@@ -297,4 +307,4 @@ const ConfigUI = {
         });
     }
 };
-export { isTorchIncluded, forceSetPermutation, forceShow, ConfigUI };
+export { isTorchIncluded, forceSetPermutation, forceShow, ConfigUI, };

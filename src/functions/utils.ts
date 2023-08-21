@@ -46,12 +46,15 @@ Object.prototype.clone = function(this: any): any {
 	return JSON.parse(JSON.stringify(this));
 };
 
-const fetchScoreObj = (playerID: string) => {
+export const fetchScoreObj = (playerID: string) => {
+	// Deep Copy of the config object.
 	const privateConfig = (config as Object).clone();
+
+	// If the configDB has the playerID's configObject, then return it. Else, if it hasn't got any configObject, then return the privateConfig instead as default.
   return configDB.get(configDBSchema(playerID)) ?? privateConfig;
 };
 
-const configDBSchema = (playerID: string) => {
+export const configDBSchema = (playerID: string) => {
 	return `${playerID}_configObject`;
 }
 
@@ -141,7 +144,8 @@ const ConfigUI = {
 		const formKeys = {};
 		let i = 0;
 		let selectedIndex = 0;
-		const customizationForm = new ModalFormData();
+		const customizationForm = new ModalFormData()
+		.title({translate: `ConfigurationForm.${id}.listOptions.name`, with: ["\n"]});
 
 		const configurationObject = fetchScoreObj(player.id);
 		keyValues.forEach(({ key, value }) => {
@@ -255,7 +259,14 @@ const ConfigUI = {
 								value = value !== 0 ? value - 1 : value;
 								const fetchedKey = Object.keys(formKeys[formIndex]?.value[value])[0];
 								if(formValues.hasOwnProperty(fetchedKey)) {
-									formValues[fetchedKey] = result.formValues[formIndex + 1] + "";
+									const newValue = result.formValues[formIndex + 1] + "";
+									let modifiedValue: boolean | number | string;
+									if (newValue === "true" || newValue === "false") {
+										modifiedValue = newValue === "true";
+									} else if (!isNaN(Number(newValue))) {
+										modifiedValue = Number(newValue);
+									}
+									formValues[fetchedKey] = modifiedValue;
 								}
 							}
 						}
@@ -272,7 +283,8 @@ const ConfigUI = {
 			Selection = "selectionIndex",
 			Slide = "current"
 		}
-		const advancedForm = new ModalFormData();
+		const advancedForm = new ModalFormData()
+		.title({translate: `ConfigurationForm.${id}.dictionaryOptions.name`, with: ["\n"]});
 
 		const configurationObject = fetchScoreObj(player.id);
 		keyValues.forEach(({key, value}) => {
@@ -344,5 +356,5 @@ export {
   isTorchIncluded, 
   forceSetPermutation, 
   forceShow,
-	ConfigUI
+	ConfigUI,
 };

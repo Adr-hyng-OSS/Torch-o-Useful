@@ -20,7 +20,7 @@ export default {
    *  - any_custom:torch
    *  - any:_torch
    */
-  includeCustomTorch: ["minecraft:soul_torch"],
+  includeCustomTorch: [],
   /**
    * (Supports Regex) 
    * List of Custom or Vanilla torches to exclude.
@@ -29,7 +29,7 @@ export default {
    *  - .*_torch
    *  - any_custom:torch
    */
-  excludeCustomTorch: ["minecraft:torch"],
+  excludeCustomTorch: [],
   /**
    * Prioritize mainhand over offhand. If false, it will prioritize offhand over mainhand. 
    * (Only works for Hitting Entity)

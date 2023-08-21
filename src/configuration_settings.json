@@ -7,12 +7,12 @@
   "includeCustomTorch": {
     "description": "(Supports Regex) \nThis makes custom torches that doesn't endswith: \n.*_torch or .*torch \nbe included too.\nList of included Custom Torch, since it only accepts any torches that endswith: *.torch or .*_torch \nExample: \n - minecraft:torch\n - minecraft:soul_torch\n - minecraft:redstone_torch\n - any_custom:torch\n - any:_torch",
     "type": "customizableArray",
-    "default": ["minecraft:soul_torch"]
+    "default": []
   },
   "excludeCustomTorch": {
     "description": "(Supports Regex) \nList of Custom or Vanilla torches to exclude.\nExample: \n - minecraft:soul_torch\n - .*_torch\n - any_custom:torch",
     "type": "customizableArray",
-    "default": ["minecraft:torch"]
+    "default": []
   },
 
   "prioritizeMainHand": {

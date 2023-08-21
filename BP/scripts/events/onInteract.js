@@ -1,5 +1,6 @@
 import { world, Player, EntityEquipmentInventoryComponent, EquipmentSlot, EntityInventoryComponent, system, MinecraftBlockTypes } from "@minecraft/server";
-import { isTorchIncluded, Compare, igniteTNT, forceSetPermutation, consumeTorchOnLit } from "../packages";
+import { isTorchIncluded, Compare, forceSetPermutation, fetchScoreObj, configDBSchema } from "../packages";
+import { configDB } from "main";
 const logMap = new Map();
 world.beforeEvents.itemUseOn.subscribe(async (event) => {
     const _block = event.block;
@@ -29,6 +30,8 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
     if (!torchHand)
         return;
     let justExecuted = false;
+    let config = fetchScoreObj(player.id);
+    configDB.set(configDBSchema(player.id), config);
     const onBlockPlaced = world.afterEvents.blockPlace.subscribe((onPlaced) => {
         system.run(() => world.afterEvents.blockPlace.unsubscribe(onBlockPlaced));
         if (justExecuted)
@@ -44,7 +47,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
             return;
         if (!Compare.types.isEqual(blockPlacePlayer?.id, player?.id))
             return;
-        if (_block.type === MinecraftBlockTypes.tnt && !igniteTNT)
+        if (_block.type === MinecraftBlockTypes.tnt && !config.igniteTNT)
             return;
         blockPlaced.setType(MinecraftBlockTypes.air);
         justExecuted = true;
@@ -64,7 +67,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
                 forceSetPermutation(_block, flag, "extinguished");
                 break;
             }
-            if (key === "explode_bit" && value === false && igniteTNT) {
+            if (key === "explode_bit" && value === false && config.igniteTNT) {
                 _block.setType(MinecraftBlockTypes.air);
                 blockPlacePlayer.dimension.spawnEntity("minecraft:tnt", _block.location);
                 break;
@@ -78,7 +81,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
         return;
     if (justExecuted)
         return;
-    if (consumeTorchOnLit)
+    if (config.consumeTorchOnLit)
         inventory.clearItem(torchHand.item.typeId, 1);
     for (const [key, value] of Object.entries(permutations)) {
         if (key === "lit" && value === false) {
@@ -91,7 +94,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
             forceSetPermutation(_block, flag, "extinguished");
             break;
         }
-        if (key === "explode_bit" && value === false && igniteTNT) {
+        if (key === "explode_bit" && value === false && config.igniteTNT) {
             _block.setType(MinecraftBlockTypes.air);
             player.dimension.spawnEntity("minecraft:tnt", _block.location);
             justExecuted = true;
