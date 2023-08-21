@@ -19,10 +19,10 @@ const onHurtEvent = world.afterEvents.entityHurt.subscribe((event) => {
     const equipment = player.getComponent(EntityEquipmentInventoryComponent.componentId);
     const mainHand = equipment.getEquipment(EquipmentSlot.mainhand)?.typeId;
     const offHand = equipment.getEquipment(EquipmentSlot.offhand)?.typeId;
-    if (!([isTorchIncluded(mainHand), isTorchIncluded(offHand)].some(hand => hand === true)))
-        return;
     let config = fetchScoreObj(player.id);
     configDB.set(configDBSchema(player.id), config);
+    if (!([isTorchIncluded(config, mainHand), isTorchIncluded(config, offHand)].some(hand => hand === true)))
+        return;
     let handToUse = config.prioritizeMainHand ? mainHand : offHand;
     if (!mainHand)
         handToUse = offHand;
@@ -35,10 +35,10 @@ const onHurtEvent = world.afterEvents.entityHurt.subscribe((event) => {
         if (typeof updatedTorchFireEffects[key] === "number")
             updatedTorchFireEffects[key] = Math.round(updatedTorchFireEffects[key] / TicksPerSecond);
     });
-    if (!isTorchIncluded(handToUse)) {
+    if (!isTorchIncluded(config, handToUse)) {
         handToUse = Compare.types.isEqual(handToUse, mainHand) ? offHand : mainHand;
     }
-    if (isTorchIncluded(handToUse)) {
+    if (isTorchIncluded(config, handToUse)) {
         hurtedEntity.setOnFire(updatedTorchFireEffects[handToUse] ?? 0, true);
     }
 });

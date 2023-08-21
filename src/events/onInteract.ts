@@ -35,10 +35,13 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 		{ slot: offHand, item: offHand }
 	];
 
+	// Config through DB.
+	let config = fetchScoreObj(player.id); configDB.set(configDBSchema(player.id), config);
+
 	// Gets the hand that has torch in it.
 	const torchHand = hands.find(hand => {
 		if (!hand.item?.typeId) return false;
-		return isTorchIncluded(hand.item?.typeId);
+		return isTorchIncluded(config, hand.item?.typeId);
 	});
 	
 	// If both hands doesn't have torch, then return.
@@ -47,8 +50,6 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 	// For executing the onPlaceBlock event once.
 	let justExecuted = false;
 
-	// Config through DB.
-	let config = fetchScoreObj(player.id); configDB.set(configDBSchema(player.id), config);
 
 	//* This block handles, when you are holding a placeable items like:
 	//* such as ladders, torches, blocks, etc.

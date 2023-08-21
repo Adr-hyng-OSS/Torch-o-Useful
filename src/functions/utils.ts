@@ -1,22 +1,24 @@
 import { Block, Player, system } from "@minecraft/server";
 import { ActionFormData, ActionFormResponse, FormCancelationReason, ModalFormData, ModalFormResponse } from "@minecraft/server-ui";
-import {includeCustomTorch, excludeCustomTorch, Logger} from "../packages";
+import {Logger} from "../packages";
 import { configDB } from "../main";
 import config from "config";
 
-function isTorchIncluded(blockID: string): boolean {
+function isTorchIncluded(configObj: any, blockID: string): boolean {
+
+
   const currentPatterns: string[] = [
     '^[\\w\\-]+:(?:[\\w_]+_)?torch$'
   ];
 
-  const excludeRegexes: RegExp[] = excludeCustomTorch.map((excluded: string) => new RegExp(excluded));
+  const excludeRegexes: RegExp[] = configObj.excludeCustomTorch.map((excluded: string) => new RegExp(excluded));
   
   const isExcluded: boolean = excludeRegexes.some((regex: RegExp) => regex.test(blockID));
   if (isExcluded) {
     return false;
   }
 
-  let patterns: string[]  = [...currentPatterns, ...includeCustomTorch];
+  let patterns: string[]  = [...currentPatterns, ...configObj.includeCustomTorch];
   const combinedPattern = new RegExp(patterns.join('|'));
   return combinedPattern.test(blockID);
 }

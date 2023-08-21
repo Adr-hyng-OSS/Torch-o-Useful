@@ -22,16 +22,16 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
         { slot: mainHand, item: mainHand },
         { slot: offHand, item: offHand }
     ];
+    let config = fetchScoreObj(player.id);
+    configDB.set(configDBSchema(player.id), config);
     const torchHand = hands.find(hand => {
         if (!hand.item?.typeId)
             return false;
-        return isTorchIncluded(hand.item?.typeId);
+        return isTorchIncluded(config, hand.item?.typeId);
     });
     if (!torchHand)
         return;
     let justExecuted = false;
-    let config = fetchScoreObj(player.id);
-    configDB.set(configDBSchema(player.id), config);
     const onBlockPlaced = world.afterEvents.blockPlace.subscribe((onPlaced) => {
         system.run(() => world.afterEvents.blockPlace.unsubscribe(onBlockPlaced));
         if (justExecuted)

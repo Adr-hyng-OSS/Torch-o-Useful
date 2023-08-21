@@ -1,18 +1,17 @@
 import { system } from "@minecraft/server";
 import { ActionFormData, FormCancelationReason, ModalFormData } from "@minecraft/server-ui";
-import { includeCustomTorch, excludeCustomTorch } from "../packages";
 import { configDB } from "../main";
 import config from "config";
-function isTorchIncluded(blockID) {
+function isTorchIncluded(configObj, blockID) {
     const currentPatterns = [
         '^[\\w\\-]+:(?:[\\w_]+_)?torch$'
     ];
-    const excludeRegexes = excludeCustomTorch.map((excluded) => new RegExp(excluded));
+    const excludeRegexes = configObj.excludeCustomTorch.map((excluded) => new RegExp(excluded));
     const isExcluded = excludeRegexes.some((regex) => regex.test(blockID));
     if (isExcluded) {
         return false;
     }
-    let patterns = [...currentPatterns, ...includeCustomTorch];
+    let patterns = [...currentPatterns, ...configObj.includeCustomTorch];
     const combinedPattern = new RegExp(patterns.join('|'));
     return combinedPattern.test(blockID);
 }

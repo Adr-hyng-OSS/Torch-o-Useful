@@ -9,6 +9,7 @@ import {
 import {Player, ScriptEventSource, system, world} from "@minecraft/server";
 import { DatabaseSavingModes } from "database";
 
+//! TEMPORARY
 world.afterEvents.itemUse.subscribe((event) => {
 	const player = event.source as Player;
 	if(!player.isSneaking) return;
