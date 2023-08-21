@@ -180,14 +180,19 @@ const ConfigUI = {
 				const isLastElement = formIndex === length - 1;
 				if (isLastElement && shouldBack) return ConfigUI.main(id, player);
 				if(isLastElement) return;
-			const formValues = configurationObject[formKeys[formIndex]?.key];
+				const formValues = configurationObject[formKeys[formIndex]?.key];
 				//! [HERE FIRST] 
 				//* If dropdown's index is 0, and TextField has a value, then create a new entry to dropdown with the TextField's value.
 				//* If dropdown's index is not 0, and TextField has a value, and isShouldDelete is off, then edit the dropdown's value with the TextField's value.
 				//* If dropdown's index is not 0, and isShouldDelete is on, then delete the element the dropDown's index has specified.
 
+				// if(formIndex % 3 === 1) Logger.warn(formKeys[formIndex]?.key, result.formValues[formIndex] + "");
+				// This is an indicator that the formIndex is a dropdown or contains an array or object, which is also
+				// A dropdown component.
 				if(formIndex % 3 === 0) {
 					// Create new one.
+					// When the dropdown's index is 0 or the top most index, which has a value of "Create".
+					value = value as number;
 					if(value === 0) {
 						if(result.formValues[formIndex + 1] !== "") {
 							let modifiedEntry: { key: string; value: any };
@@ -212,8 +217,28 @@ const ConfigUI = {
 						}
 					}
 					// Edit existing one.
+					else if(value !== 0) {
+						if(Array.isArray(formValues)) {
+							// If shouldDelete toggle is on, then delete the current selected element
+							// Even if the textField has or has not have a value.
+							if (result.formValues[formIndex + 2] === true) {
+								value = value !== 0 ? value - 1 : value;
+								formValues.splice(value, 1);
+							}
+							// If text field is not empty, then edit the dropdown's value.
+							if(result.formValues[formIndex + 1] !== "") {
+								// If the shouldDelete toggle is off, then edit the dropdown's value.
+								if(result.formValues[formIndex + 2] === false) {
+									value = value !== 0 ? value - 1 : value;
+									formValues[value] = result.formValues[formIndex + 1] + "";
+								} 
+							}
+						}
 
-					// Delete existing one.
+						else {
+							Logger.warn("No code yet");
+						}
+					}
 				}
 				configDB.set(configDBSchema(player.id), configurationObject);
 			});

@@ -1,6 +1,6 @@
 import { system } from "@minecraft/server";
 import { ActionFormData, FormCancelationReason, ModalFormData } from "@minecraft/server-ui";
-import { includeCustomTorch, excludeCustomTorch } from "../packages";
+import { includeCustomTorch, excludeCustomTorch, Logger } from "../packages";
 import { configDB } from "../main";
 import config from "config";
 function isTorchIncluded(blockID) {
@@ -171,6 +171,7 @@ const ConfigUI = {
                     return;
                 const formValues = configurationObject[formKeys[formIndex]?.key];
                 if (formIndex % 3 === 0) {
+                    value = value;
                     if (value === 0) {
                         if (result.formValues[formIndex + 1] !== "") {
                             let modifiedEntry;
@@ -191,6 +192,23 @@ const ConfigUI = {
                                 modifiedEntry = { key: newKey, value: modifiedValue };
                                 formValues[modifiedEntry.key] = modifiedEntry.value;
                             }
+                        }
+                    }
+                    else if (value !== 0) {
+                        if (Array.isArray(formValues)) {
+                            if (result.formValues[formIndex + 2] === true) {
+                                value = value !== 0 ? value - 1 : value;
+                                formValues.splice(value, 1);
+                            }
+                            if (result.formValues[formIndex + 1] !== "") {
+                                if (result.formValues[formIndex + 2] === false) {
+                                    value = value !== 0 ? value - 1 : value;
+                                    formValues[value] = result.formValues[formIndex + 1] + "";
+                                }
+                            }
+                        }
+                        else {
+                            Logger.warn("No code yet");
                         }
                     }
                 }
