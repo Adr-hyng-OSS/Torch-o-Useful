@@ -2,7 +2,7 @@ import { Block, Player, system } from "@minecraft/server";
 import { ActionFormData, ActionFormResponse, FormCancelationReason, ModalFormData, ModalFormResponse } from "@minecraft/server-ui";
 import {Logger} from "../packages";
 import { configDB } from "../main";
-import config from "config";
+import * as ConfigurationInstance from "../config";
 
 function isTorchIncluded(configObj: any, blockID: string): boolean {
 
@@ -50,7 +50,7 @@ Object.prototype.clone = function(this: any): any {
 
 export const fetchScoreObj = (playerID: string) => {
 	// Deep Copy of the config object.
-	const privateConfig = (config as Object).clone();
+	const privateConfig = (ConfigurationInstance.default as Object).clone();
 
 	// If the configDB has the playerID's configObject, then return it. Else, if it hasn't got any configObject, then return the privateConfig instead as default.
   return configDB.get(configDBSchema(playerID)) ?? privateConfig;
@@ -154,7 +154,7 @@ const ConfigUI = {
 			formKeys[i] = {"key": key, "value": value, "dropdown": []};
 			i += 3;
 			const dropDownSet = new Set<string>();
-			const isArray = Array.isArray(config[key]);
+			const isArray = Array.isArray(configurationObject[key]);
 			if(isArray) {
 				value.forEach((configOption: string) => {
 					dropDownSet.add(configOption)

@@ -23,21 +23,9 @@ export * from "./events/onInteract";
 //   - customizableMap
 
 const {
-    debug,
-    igniteTNT,
-    excludeCustomTorch,
-    includeCustomTorch,
-    torchFireEffects,
-    prioritizeMainHand,
-    consumeTorchOnLit,
+    debug
 } = config;
 
 export {
-    debug, 
-    igniteTNT, 
-    excludeCustomTorch, 
-    includeCustomTorch, 
-    torchFireEffects, 
-    prioritizeMainHand, 
-    consumeTorchOnLit
+    debug
 };

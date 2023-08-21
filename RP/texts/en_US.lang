@@ -19,10 +19,6 @@ ConfigurationForm.yn:torchouseful.prioritizeMainHand.name=prioritizeMainHand
 ConfigurationForm.yn:torchouseful.prioritizeMainHand.description=prioritizeMainHand: %sPrioritize mainhand over offhand. If false, it will prioritize offhand over mainhand. %s(Only works for Hitting Entity)
 ConfigurationForm.yn:torchouseful.consumeTorchOnLit.name=consumeTorchOnLit
 ConfigurationForm.yn:torchouseful.consumeTorchOnLit.description=consumeTorchOnLit: %sToggle for consuming the torch when lighting a campfire, candle or tnt.
-ConfigurationForm.yn:torchouseful.rangeTest.name=rangeTest
-ConfigurationForm.yn:torchouseful.rangeTest.description=rangeTest: %sRange Test
-ConfigurationForm.yn:torchouseful.selectionTest.name=selectionTest
-ConfigurationForm.yn:torchouseful.selectionTest.description=selectionTest: %sRange Test
 ConfigurationForm.yn:torchouseful.torchFireEffects.name=torchFireEffects
 ConfigurationForm.yn:torchouseful.torchFireEffects.description=torchFireEffects: %sTorches with their fire ticks, when you hit the mob on how many seconds to make it the mob in fire. %s(i.g Torch: 40 ticks, Soul Torch: 60 ticks)
 

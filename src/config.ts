@@ -40,19 +40,6 @@ export default {
    */
   consumeTorchOnLit: true,
   /**
-   * Range Test
-   */
-  rangeTest: {
-		"from": 1,
-		"to": 10
-	},
-  /**
-   * Range Test
-   */
-  selectionTest: {
-		"selection": ["OPTION 1", "OPTION 2"]
-	},
-  /**
    * Torches with their fire ticks, when you hit the mob on how many seconds to make it the mob in fire. 
    * (i.g Torch: 40 ticks, Soul Torch: 60 ticks)
    */

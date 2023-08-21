@@ -8,5 +8,5 @@ export * from "./classes/inventory";
 export * from "./database";
 export * from "./events/onHurt";
 export * from "./events/onInteract";
-const { debug, igniteTNT, excludeCustomTorch, includeCustomTorch, torchFireEffects, prioritizeMainHand, consumeTorchOnLit, } = config;
-export { debug, igniteTNT, excludeCustomTorch, includeCustomTorch, torchFireEffects, prioritizeMainHand, consumeTorchOnLit };
+const { debug } = config;
+export { debug };

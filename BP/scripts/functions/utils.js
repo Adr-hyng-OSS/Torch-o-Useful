@@ -1,7 +1,7 @@
 import { system } from "@minecraft/server";
 import { ActionFormData, FormCancelationReason, ModalFormData } from "@minecraft/server-ui";
 import { configDB } from "../main";
-import config from "config";
+import * as ConfigurationInstance from "../config";
 function isTorchIncluded(configObj, blockID) {
     const currentPatterns = [
         '^[\\w\\-]+:(?:[\\w_]+_)?torch$'
@@ -35,7 +35,7 @@ Object.prototype.clone = function () {
     return JSON.parse(JSON.stringify(this));
 };
 export const fetchScoreObj = (playerID) => {
-    const privateConfig = config.clone();
+    const privateConfig = ConfigurationInstance.default.clone();
     return configDB.get(configDBSchema(playerID)) ?? privateConfig;
 };
 export const configDBSchema = (playerID) => {
@@ -138,7 +138,7 @@ const ConfigUI = {
             formKeys[i] = { "key": key, "value": value, "dropdown": [] };
             i += 3;
             const dropDownSet = new Set();
-            const isArray = Array.isArray(config[key]);
+            const isArray = Array.isArray(configurationObject[key]);
             if (isArray) {
                 value.forEach((configOption) => {
                     dropDownSet.add(configOption);
