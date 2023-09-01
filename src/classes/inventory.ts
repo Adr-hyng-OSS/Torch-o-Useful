@@ -1,5 +1,4 @@
 import { Container, EntityEquipmentInventoryComponent, EquipmentSlot, ItemStack, ItemType, Player } from "@minecraft/server";
-import { OverTakes } from "api_utils/overtakes";
 import { Logger } from "./logger";
 
 declare module "@minecraft/server" {

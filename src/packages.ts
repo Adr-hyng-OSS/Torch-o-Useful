@@ -3,15 +3,9 @@ export * from "./config";
 
 export * from "./functions/compare";
 export * from "./functions/utils";
-import "./functions/vanilla_utils";
 
 export * from "./classes/logger";
 export * from "./classes/inventory";
-
-export * from "./database";
-
-export * from "./events/onHurt";
-export * from "./events/onInteract";
 
 //? Possible types: 
 //   - string
@@ -23,9 +17,21 @@ export * from "./events/onInteract";
 //   - customizableMap
 
 const {
-    debug
+    debug,
+    consumeTorchOnLit,
+    excludeCustomTorch,
+    igniteTNT,
+    includeCustomTorch,
+    prioritizeMainHand,
+    torchFireEffects
 } = config;
 
 export {
-    debug
+    debug,
+    consumeTorchOnLit,
+    excludeCustomTorch,
+    igniteTNT,
+    includeCustomTorch,
+    prioritizeMainHand,
+    torchFireEffects
 };

@@ -1,6 +1,5 @@
-import { world, Player, EntityEquipmentInventoryComponent, EquipmentSlot, EntityInventoryComponent, system, MinecraftBlockTypes } from "@minecraft/server";
-import { isTorchIncluded, Compare, forceSetPermutation, fetchScoreObj, configDBSchema } from "../packages";
-import { configDB } from "main";
+import { EntityEquipmentInventoryComponent, EntityInventoryComponent, EquipmentSlot, MinecraftBlockTypes, Player, system, world } from "@minecraft/server";
+import { Compare, consumeTorchOnLit, forceSetPermutation, igniteTNT, isTorchIncluded } from "../packages";
 const logMap = new Map();
 world.beforeEvents.itemUseOn.subscribe(async (event) => {
     const _block = event.block;
@@ -17,17 +16,15 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
         return;
     const equipment = await player.getComponent(EntityEquipmentInventoryComponent.componentId);
     const offHand = equipment.getEquipment(EquipmentSlot.offhand);
-    const inventory = player.getComponent(EntityInventoryComponent.componentId).container.setHolder(player);
+    const inventory = (player.getComponent(EntityInventoryComponent.componentId).container).setHolder(player);
     const hands = [
         { slot: mainHand, item: mainHand },
         { slot: offHand, item: offHand }
     ];
-    let config = fetchScoreObj(player.id);
-    configDB.set(configDBSchema(player.id), config);
     const torchHand = hands.find(hand => {
         if (!hand.item?.typeId)
             return false;
-        return isTorchIncluded(config, hand.item?.typeId);
+        return isTorchIncluded(hand.item?.typeId);
     });
     if (!torchHand)
         return;
@@ -47,7 +44,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
             return;
         if (!Compare.types.isEqual(blockPlacePlayer?.id, player?.id))
             return;
-        if (_block.type === MinecraftBlockTypes.tnt && !config.igniteTNT)
+        if (_block.type === MinecraftBlockTypes.tnt && !igniteTNT)
             return;
         blockPlaced.setType(MinecraftBlockTypes.air);
         justExecuted = true;
@@ -67,7 +64,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
                 forceSetPermutation(_block, flag, "extinguished");
                 break;
             }
-            if (key === "explode_bit" && value === false && config.igniteTNT) {
+            if (key === "explode_bit" && value === false && igniteTNT) {
                 _block.setType(MinecraftBlockTypes.air);
                 blockPlacePlayer.dimension.spawnEntity("minecraft:tnt", _block.location);
                 break;
@@ -81,7 +78,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
         return;
     if (justExecuted)
         return;
-    if (config.consumeTorchOnLit)
+    if (consumeTorchOnLit)
         inventory.clearItem(torchHand.item.typeId, 1);
     for (const [key, value] of Object.entries(permutations)) {
         if (key === "lit" && value === false) {
@@ -94,7 +91,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
             forceSetPermutation(_block, flag, "extinguished");
             break;
         }
-        if (key === "explode_bit" && value === false && config.igniteTNT) {
+        if (key === "explode_bit" && value === false && igniteTNT) {
             _block.setType(MinecraftBlockTypes.air);
             player.dimension.spawnEntity("minecraft:tnt", _block.location);
             justExecuted = true;
