@@ -41,6 +41,8 @@ def generateScript(isServer):
     lang_entries = []
 
     for name, data in settings.items():
+        
+        # Generate config.js entries
         if isServer:
             result += f'  {name}: variables.get("{name}"),\n'
         else:

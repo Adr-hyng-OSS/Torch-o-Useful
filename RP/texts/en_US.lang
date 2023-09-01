@@ -1,10 +1,10 @@
+ConfigurationForm.yn:torchouseful.misc.back.text=Back
 
 ## Options
 ConfigurationForm.yn:torchouseful.addonIdentifier.name=Torch O' Useful
 ConfigurationForm.yn:torchouseful.basic.name=Basic
 ConfigurationForm.yn:torchouseful.listOptions.name=Customize
 ConfigurationForm.yn:torchouseful.dictionaryOptions.name=Advance
-ConfigurationForm.yn:torchouseful.misc.back.text=Back
 
 ## Configuration
 ConfigurationForm.yn:torchouseful.debug.name=debug
