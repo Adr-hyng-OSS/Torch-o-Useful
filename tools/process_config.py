@@ -41,18 +41,11 @@ def generateScript(isServer):
     lang_entries = []
 
     for name, data in settings.items():
+        
+        # Generate config.js entries
         if isServer:
             result += f'  {name}: variables.get("{name}"),\n'
         else:
-            # Possible types: 
-            #   - string
-            #   - boolean
-            #   - number
-            #   - range
-            #   - customizableArray
-            #   - selectionArray
-            #   - customizableMap
-            
             value = data["default"]
             if type(value) is str:
                 value = f'"{value}"'

@@ -8,6 +8,7 @@ export default {
    */
   igniteTNT: false,
   /**
+   * (Supports Regex) 
    * This makes custom torches that doesn't endswith: 
    * .*_torch or .*torch 
    * be included too.
@@ -21,6 +22,7 @@ export default {
    */
   includeCustomTorch: [],
   /**
+   * (Supports Regex) 
    * List of Custom or Vanilla torches to exclude.
    * Example: 
    *  - minecraft:soul_torch
