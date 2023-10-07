@@ -22,7 +22,7 @@ async function forceShow(player, form, timeout = Infinity) {
     const startTick = system.currentTick;
     while ((system.currentTick - startTick) < timeout) {
         const response = await (form.show(player)).catch(er => console.error(er, er.stack));
-        if (response.cancelationReason !== FormCancelationReason.userBusy) {
+        if (response.cancelationReason !== FormCancelationReason.UserBusy) {
             return response;
         }
     }

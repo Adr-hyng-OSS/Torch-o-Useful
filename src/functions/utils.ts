@@ -32,7 +32,7 @@ async function forceShow(player: Player, form: ActionFormData | ModalFormData, t
     const startTick: number = system.currentTick;
     while ((system.currentTick - startTick) < timeout) {
         const response: ActionFormResponse | ModalFormResponse = await (form.show(player)).catch(er=>console.error(er,er.stack)) as ActionFormResponse | ModalFormResponse;
-        if (response.cancelationReason !== FormCancelationReason.userBusy) {
+        if (response.cancelationReason !== FormCancelationReason.UserBusy) {
             return response;
         }
     };
