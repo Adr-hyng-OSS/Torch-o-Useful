@@ -1,4 +1,4 @@
-import { Block, Player, system } from "@minecraft/server";
+import { Block, GameMode, Player, system } from "@minecraft/server";
 import {includeCustomTorch, excludeCustomTorch} from "../packages";
 import { ActionFormData, ActionFormResponse, FormCancelationReason, ModalFormData, ModalFormResponse } from "@minecraft/server-ui";
 

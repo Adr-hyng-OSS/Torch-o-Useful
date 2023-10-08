@@ -1,4 +1,4 @@
-import { Container, EntityEquipmentInventoryComponent, EquipmentSlot, ItemStack, ItemType, Player } from "@minecraft/server";
+import { Container, EntityEquippableComponent, EquipmentSlot, ItemStack, ItemType, Player } from "@minecraft/server";
 import { Logger } from "./logger";
 
 declare module "@minecraft/server" {
@@ -40,8 +40,8 @@ Container.prototype.getItemAmount = function(itemToCheck: ItemType): number {
 
 Container.prototype.clearItem = function(itemId: string, decrement: number): boolean {
     const clearSlots = [];
-    const equipment = (this.holder.getComponent(EntityEquipmentInventoryComponent.componentId) as EntityEquipmentInventoryComponent);
-    const offhand = equipment.getEquipment(EquipmentSlot.offhand);
+    const equipment = (this.holder.getComponent(EntityEquippableComponent.componentId) as EntityEquippableComponent);
+    const offhand = equipment.getEquipment(EquipmentSlot.Offhand);
     for (let i = 0; i < this.size; i++) {
         let item: ItemStack = this.getItem(i);
         if (item?.typeId !== itemId) continue;
@@ -59,12 +59,12 @@ Container.prototype.clearItem = function(itemId: string, decrement: number): boo
     }; 
     if(offhand?.typeId === itemId) {
         if(offhand?.amount - decrement === 0) {
-            equipment.setEquipment(EquipmentSlot.offhand, undefined);
+            equipment.setEquipment(EquipmentSlot.Offhand, undefined);
             return true;
         }
         if(offhand?.amount - decrement > 0) {
             offhand.amount -= decrement;
-            equipment.setEquipment(EquipmentSlot.offhand, offhand);
+            equipment.setEquipment(EquipmentSlot.Offhand, offhand);
             return true;
         }
     }

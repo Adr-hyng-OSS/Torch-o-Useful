@@ -1,10 +1,12 @@
-import { EntityDamageCause, EntityEquipmentInventoryComponent, EntityInventoryComponent, EquipmentSlot, MinecraftBlockTypes, MinecraftItemTypes, Player, TicksPerSecond, system, world } from "@minecraft/server";
+import { EntityDamageCause, EntityEquippableComponent, EntityInventoryComponent, EquipmentSlot, Player, TicksPerSecond, system, world } from "@minecraft/server";
+import { MinecraftBlockTypes, MinecraftItemTypes } from "./modules/vanilla-types/index";
 import { Compare, Logger, consumeTorchOnLit, forceSetPermutation, igniteTNT, isTorchIncluded, prioritizeMainHand, torchFireEffects } from "./packages";
 
+
 const DEFAULT_EFFECTS: Map<string, number> = new Map([
-  [MinecraftItemTypes.torch.id, 40],
-  [MinecraftItemTypes.soulTorch.id, 60],
-  [MinecraftItemTypes.redstoneTorch.id, 40]
+  [MinecraftItemTypes.Torch.id, 40],
+  [MinecraftItemTypes.SoulTorch.id, 60],
+  [MinecraftItemTypes.RedstoneTorch.id, 40]
 ]);
 
 const logMap: Map<string, number> = new Map<string, number>();
@@ -31,8 +33,8 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
   if(permutations["lit"] === undefined && permutations["extinguished"] === undefined && permutations["explode_bit"] === undefined) return;
 
 	// Get the main, and offhand items.
-	const equipment = await (player.getComponent(EntityEquipmentInventoryComponent.componentId) as EntityEquipmentInventoryComponent);
-	const offHand = equipment.getEquipment(EquipmentSlot.offhand);
+	const equipment = await (player.getComponent(EntityEquippableComponent.componentId) as EntityEquippableComponent);
+	const offHand = equipment.getEquipment(EquipmentSlot.Offhand);
 	const inventory = ((player.getComponent(EntityInventoryComponent.componentId) as EntityInventoryComponent).container).setHolder(player);
 
 	const hands = [
@@ -56,9 +58,8 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 	//* such as ladders, torches, blocks, etc.
 	//* So, whenever that happens, then set that to air.
 	//* and handle, the consume toggle configuration.
-	//? The fire aspect mechanics doesn't need required the "prioritizeHand" config.
-	const onBlockPlaced = world.afterEvents.blockPlace.subscribe((onPlaced) => {
-		system.run(() => world.afterEvents.blockPlace.unsubscribe(onBlockPlaced));
+	const onBlockPlaced = world.afterEvents.playerPlaceBlock.subscribe((onPlaced) => {
+		system.run(() => world.afterEvents.playerPlaceBlock.unsubscribe(onBlockPlaced));
 
 		// When already executed, then return.
 		if(justExecuted) return;
@@ -78,15 +79,15 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 		// If the source who placed a block in the world, is not the same as the player who interacted with the block in the first place, then return.
 		if(!Compare.types.isEqual(blockPlacePlayer?.id, player?.id)) return;
 
-		if(_block.type === MinecraftBlockTypes.tnt && !igniteTNT) return;
+		if(_block.type === MinecraftBlockTypes.Tnt && !igniteTNT) return;
 
 		// cancel the blockplacement.
-		blockPlaced.setType(MinecraftBlockTypes.air);
+		blockPlaced.setType(MinecraftBlockTypes.Air);
 		justExecuted = true;
 
 		// If the blockPlaced is not a validTorch, then add it automatically to the inventory. Since it is not torch.
 		// We only want to find the torch, since it's part of the config.
-		inventory.giveItem(blockPlacedItemStack.type, 1);
+		if(blockPlacePlayer.isSurvival()) inventory.giveItem(blockPlacedItemStack.type, 1);
 
 		// If the block interacted is not a campfire or candle, then return.
 		if(permutations["lit"] === undefined && permutations["extinguished"] === undefined && permutations["explode_bit"] === undefined) return;
@@ -108,7 +109,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 				break;
 			}
 			if(key === "explode_bit" && value === false && igniteTNT) {
-				_block.setType(MinecraftBlockTypes.air);
+				_block.setType(MinecraftBlockTypes.Air);
 				blockPlacePlayer.dimension.spawnEntity("minecraft:tnt", _block.location);
 				break;
 			}
@@ -128,7 +129,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 	//* Also, It will automatically extinguish the campfire, if you are holding
 	//* a shovel, and you are interacting it too fast, wait for the timer.
 	if(justExecuted) return;
-	if(consumeTorchOnLit) inventory.clearItem(torchHand.item.typeId, 1);	
+	if(consumeTorchOnLit && player.isSurvival()) inventory.clearItem(torchHand.item.typeId, 1);	
 	for (const [key, value] of Object.entries(permutations)) {
 		if(key === "lit" && value === false) {
 			const flag: boolean = value as boolean;
@@ -141,7 +142,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 			break;
 		}
 		if(key === "explode_bit" && value === false && igniteTNT) {
-			_block.setType(MinecraftBlockTypes.air);
+			_block.setType(MinecraftBlockTypes.Air);
 			player.dimension.spawnEntity("minecraft:tnt", _block.location);
 			justExecuted = true;
 			break;
@@ -156,9 +157,9 @@ world.afterEvents.entityHurt.subscribe((event) => {
   if(!(player instanceof Player)) return;
   if(!hurtedEntity) return;
   if(!Compare.types.isEqual(cause, EntityDamageCause.entityAttack)) return;
-  const equipment = (player.getComponent(EntityEquipmentInventoryComponent.componentId) as EntityEquipmentInventoryComponent);
-  const mainHand = equipment.getEquipment(EquipmentSlot.mainhand)?.typeId;
-  const offHand = equipment.getEquipment(EquipmentSlot.offhand)?.typeId;
+  const equipment = (player.getComponent(EntityEquippableComponent.componentId) as EntityEquippableComponent);
+  const mainHand = equipment.getEquipment(EquipmentSlot.Mainhand)?.typeId;
+  const offHand = equipment.getEquipment(EquipmentSlot.Offhand)?.typeId;
   if(!([isTorchIncluded(mainHand), isTorchIncluded(offHand)].some(hand => hand === true))) return;
   let handToUse = prioritizeMainHand ? mainHand : offHand;
 	if(!mainHand) handToUse = offHand;

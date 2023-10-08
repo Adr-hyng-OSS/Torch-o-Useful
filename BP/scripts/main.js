@@ -1,9 +1,10 @@
-import { EntityDamageCause, EntityEquipmentInventoryComponent, EntityInventoryComponent, EquipmentSlot, MinecraftBlockTypes, MinecraftItemTypes, Player, TicksPerSecond, system, world } from "@minecraft/server";
+import { EntityDamageCause, EntityEquippableComponent, EntityInventoryComponent, EquipmentSlot, Player, TicksPerSecond, system, world } from "@minecraft/server";
+import { MinecraftBlockTypes, MinecraftItemTypes } from "./modules/vanilla-types/index";
 import { Compare, consumeTorchOnLit, forceSetPermutation, igniteTNT, isTorchIncluded, prioritizeMainHand, torchFireEffects } from "./packages";
 const DEFAULT_EFFECTS = new Map([
-    [MinecraftItemTypes.torch.id, 40],
-    [MinecraftItemTypes.soulTorch.id, 60],
-    [MinecraftItemTypes.redstoneTorch.id, 40]
+    [MinecraftItemTypes.Torch.id, 40],
+    [MinecraftItemTypes.SoulTorch.id, 60],
+    [MinecraftItemTypes.RedstoneTorch.id, 40]
 ]);
 const logMap = new Map();
 world.beforeEvents.itemUseOn.subscribe(async (event) => {
@@ -19,8 +20,8 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
     const permutations = JSON.parse(JSON.stringify(_block.permutation.getAllStates()));
     if (permutations["lit"] === undefined && permutations["extinguished"] === undefined && permutations["explode_bit"] === undefined)
         return;
-    const equipment = await player.getComponent(EntityEquipmentInventoryComponent.componentId);
-    const offHand = equipment.getEquipment(EquipmentSlot.offhand);
+    const equipment = await player.getComponent(EntityEquippableComponent.componentId);
+    const offHand = equipment.getEquipment(EquipmentSlot.Offhand);
     const inventory = (player.getComponent(EntityInventoryComponent.componentId).container).setHolder(player);
     const hands = [
         { slot: mainHand, item: mainHand },
@@ -34,8 +35,8 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
     if (!torchHand)
         return;
     let justExecuted = false;
-    const onBlockPlaced = world.afterEvents.blockPlace.subscribe((onPlaced) => {
-        system.run(() => world.afterEvents.blockPlace.unsubscribe(onBlockPlaced));
+    const onBlockPlaced = world.afterEvents.playerPlaceBlock.subscribe((onPlaced) => {
+        system.run(() => world.afterEvents.playerPlaceBlock.unsubscribe(onBlockPlaced));
         if (justExecuted)
             return;
         const blockPlaced = onPlaced.block;
@@ -49,11 +50,12 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
             return;
         if (!Compare.types.isEqual(blockPlacePlayer?.id, player?.id))
             return;
-        if (_block.type === MinecraftBlockTypes.tnt && !igniteTNT)
+        if (_block.type === MinecraftBlockTypes.Tnt && !igniteTNT)
             return;
-        blockPlaced.setType(MinecraftBlockTypes.air);
+        blockPlaced.setType(MinecraftBlockTypes.Air);
         justExecuted = true;
-        inventory.giveItem(blockPlacedItemStack.type, 1);
+        if (blockPlacePlayer.isSurvival())
+            inventory.giveItem(blockPlacedItemStack.type, 1);
         if (permutations["lit"] === undefined && permutations["extinguished"] === undefined && permutations["explode_bit"] === undefined)
             return;
         if ((permutations["lit"] === true || permutations["extinguished"] === false))
@@ -70,7 +72,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
                 break;
             }
             if (key === "explode_bit" && value === false && igniteTNT) {
-                _block.setType(MinecraftBlockTypes.air);
+                _block.setType(MinecraftBlockTypes.Air);
                 blockPlacePlayer.dimension.spawnEntity("minecraft:tnt", _block.location);
                 break;
             }
@@ -83,7 +85,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
         return;
     if (justExecuted)
         return;
-    if (consumeTorchOnLit)
+    if (consumeTorchOnLit && player.isSurvival())
         inventory.clearItem(torchHand.item.typeId, 1);
     for (const [key, value] of Object.entries(permutations)) {
         if (key === "lit" && value === false) {
@@ -97,7 +99,7 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
             break;
         }
         if (key === "explode_bit" && value === false && igniteTNT) {
-            _block.setType(MinecraftBlockTypes.air);
+            _block.setType(MinecraftBlockTypes.Air);
             player.dimension.spawnEntity("minecraft:tnt", _block.location);
             justExecuted = true;
             break;
@@ -114,9 +116,9 @@ world.afterEvents.entityHurt.subscribe((event) => {
         return;
     if (!Compare.types.isEqual(cause, EntityDamageCause.entityAttack))
         return;
-    const equipment = player.getComponent(EntityEquipmentInventoryComponent.componentId);
-    const mainHand = equipment.getEquipment(EquipmentSlot.mainhand)?.typeId;
-    const offHand = equipment.getEquipment(EquipmentSlot.offhand)?.typeId;
+    const equipment = player.getComponent(EntityEquippableComponent.componentId);
+    const mainHand = equipment.getEquipment(EquipmentSlot.Mainhand)?.typeId;
+    const offHand = equipment.getEquipment(EquipmentSlot.Offhand)?.typeId;
     if (!([isTorchIncluded(mainHand), isTorchIncluded(offHand)].some(hand => hand === true)))
         return;
     let handToUse = prioritizeMainHand ? mainHand : offHand;

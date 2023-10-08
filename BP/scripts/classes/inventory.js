@@ -1,4 +1,4 @@
-import { Container, EntityEquipmentInventoryComponent, EquipmentSlot, ItemStack } from "@minecraft/server";
+import { Container, EntityEquippableComponent, EquipmentSlot, ItemStack } from "@minecraft/server";
 function stackDistribution(number, groupSize = 64) {
     const fullGroupsCount = Math.floor(number / groupSize);
     const remainder = number % groupSize;
@@ -23,8 +23,8 @@ Container.prototype.getItemAmount = function (itemToCheck) {
 };
 Container.prototype.clearItem = function (itemId, decrement) {
     const clearSlots = [];
-    const equipment = this.holder.getComponent(EntityEquipmentInventoryComponent.componentId);
-    const offhand = equipment.getEquipment(EquipmentSlot.offhand);
+    const equipment = this.holder.getComponent(EntityEquippableComponent.componentId);
+    const offhand = equipment.getEquipment(EquipmentSlot.Offhand);
     for (let i = 0; i < this.size; i++) {
         let item = this.getItem(i);
         if (item?.typeId !== itemId)
@@ -48,12 +48,12 @@ Container.prototype.clearItem = function (itemId, decrement) {
     ;
     if (offhand?.typeId === itemId) {
         if (offhand?.amount - decrement === 0) {
-            equipment.setEquipment(EquipmentSlot.offhand, undefined);
+            equipment.setEquipment(EquipmentSlot.Offhand, undefined);
             return true;
         }
         if (offhand?.amount - decrement > 0) {
             offhand.amount -= decrement;
-            equipment.setEquipment(EquipmentSlot.offhand, offhand);
+            equipment.setEquipment(EquipmentSlot.Offhand, offhand);
             return true;
         }
     }

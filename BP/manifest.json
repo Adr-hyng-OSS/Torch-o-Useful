@@ -1,7 +1,7 @@
 {
     "format_version": 2,
     "header": {
-        "name": "Torch O' Useful BP 1.0.0",
+        "name": "Torch O' Useful BP 1.0.0 [DEBUG]",
         "description": "Enhance torches and make them useful than ever before.\n @Made By: https://twitter.com/h_YanG_0A",
         "uuid": "670b7fb1-13c3-4448-904a-3fbcd5b4d88a",
         "version": [
@@ -45,7 +45,7 @@
     "dependencies": [
         {
             "module_name": "@minecraft/server",
-            "version": "1.4.0-beta"
+            "version": "1.6.0-beta"
         },
         {
             "module_name": "@minecraft/server-ui",

@@ -2,7 +2,7 @@ export default {
   /**
    * Enables debug messages to content logs.
    */
-  debug: false,
+  debug: true,
   /**
    * Toggle for igniting the tnt, similar to Fire Aspect behavior.
    */

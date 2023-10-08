@@ -9,7 +9,7 @@
         "bp_uuid": "670b7fb1-13c3-4448-904a-3fbcd5b4d88a",
 				"rp_uuid": "876b9906-8a49-4a8f-8ce8-ac965c4fe20c",
         "version": [1, 0, 0],
-		"min_engine_version": [ 1, 20, 0 ]
+				"min_engine_version": [ 1, 20, 0 ]
 	},
 	"bp_modules": [
 		{
@@ -38,7 +38,7 @@
 	"bp_dependencies": [
 		{
 			"module_name": "@minecraft/server",
-			"version": "1.4.0-beta"
+			"version": "1.6.0-beta"
 		},
 		{
 			"module_name": "@minecraft/server-ui",

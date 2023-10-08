@@ -6,6 +6,7 @@ export * from "./functions/utils";
 
 export * from "./classes/logger";
 export * from "./classes/inventory";
+export * from "./classes/player";
 
 //? Possible types: 
 //   - string
