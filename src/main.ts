@@ -81,8 +81,6 @@ world.beforeEvents.itemUseOn.subscribe(async (event) => {
 
 		if(_block.type === MinecraftBlockTypes.Tnt && !igniteTNT) return;
 
-		
-
 		// cancel the blockplacement.
 		blockPlaced.setType(MinecraftBlockTypes.Air);
 		justExecuted = true;
