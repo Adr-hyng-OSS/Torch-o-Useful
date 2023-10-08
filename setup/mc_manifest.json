@@ -1,0 +1,61 @@
+{
+	"format_version": 2,
+	"header": {
+		"bp_name": "Torch O' Useful BP",
+		"rp_name": "Torch O' Useful RP",
+		
+        "description": "Enhance torches and make them useful than ever before.\n @Made By: https://twitter.com/h_YanG_0A",
+		
+        "bp_uuid": "670b7fb1-13c3-4448-904a-3fbcd5b4d88a",
+				"rp_uuid": "876b9906-8a49-4a8f-8ce8-ac965c4fe20c",
+        "version": [1, 0, 0],
+				"min_engine_version": [ 1, 20, 0 ]
+	},
+	"bp_modules": [
+		{
+			"description": "item and entity definitions",
+			"type": "data",
+			"uuid": "330f5583-7c9f-45d0-96a7-1dc1985f3cfa",
+			"version": [ 1, 0, 0 ]
+		},
+		{
+			"description": "scripts",
+			"type": "script",
+			"language": "javascript",
+			"uuid": "70431da3-e8dc-452c-9e35-1a66f7097c64",
+			"version": [ 1, 0, 0 ],
+			"entry": "scripts/main.js"
+		}
+	],
+	"bp_capabilities": [ "script_eval" ],
+    "rp_modules": [
+		{
+			"type": "resources",
+			"uuid": "75b8bf05-6abc-4e53-bdce-a46e3264d403",
+			"version": [ 1, 0, 0 ]
+		}
+	],
+	"bp_dependencies": [
+		{
+			"module_name": "@minecraft/server",
+			"version": "1.6.0-beta"
+		},
+		{
+			"module_name": "@minecraft/server-ui",
+			"version": "1.2.0-beta"
+		}
+	],
+	"bp_server_dependencies": [
+		{
+			"module_name": "@minecraft/server-admin",
+			"version": "1.0.0-beta"
+		}
+	],
+	"metadata": {
+		"authors": [
+			"@h_YanG_0A"
+		],
+		"license": "GPL-3.0-or-later",
+		"url": "https://twitter.com/h_YanG_0A"
+	}
+}
